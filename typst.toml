@@ -1,0 +1,10 @@
+[package]
+name = "sanor"
+version = "0.1.0"
+entrypoint = "export.typ"
+authors = ["pacaunt <@pacaunt>"]
+license = "MIT"
+compiler = "0.13.1"
+repository = "https://github.com/pacaunt/chemformula"
+description = "Fast, small, presentation utility"
+categories = ["utility"]
