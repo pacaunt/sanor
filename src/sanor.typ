@@ -1,5 +1,5 @@
 #import "utils.typ"
-#import "object.typ": object, call-object, update-modifier
+#import "object.typ": call-object, object, update-modifier
 
 #let make-object(
   func,
@@ -81,12 +81,13 @@
 }
 
 #let apply(
-  name, 
-  ..modifier-cases
+  name,
+  ..modifier-cases,
 ) = _apply(name, ..modifier-cases)("apply")
 
 #let once(
-  name, ..modifier-cases
+  name,
+  ..modifier-cases,
 ) = _apply(name, ..modifier-cases)("once")
 
 #let clear(name) = {
@@ -102,10 +103,28 @@
   if type(rules) != array { rules = (rules,) }
   for rule in rules {
     if rule.type == "apply" {
+      let new-modifier
+      if rule.name in ctx {
+        let old-modifier = ctx.at(rule.name).modifier
+        if (
+          type(old-modifier) == array 
+          and old-modifier.all(m => type(m) == function)
+        ) {
+          new-modifier = it => utils.pipe(it, ..old-modifier, ..rule.modifier)
+        } else {
+          new-modifier = rule.modifier
+        }
+      } else {
+        new-modifier = rule.modifier
+      }
       ctx.insert(rule.name, (
         case: rule.case,
-        modifier: rule.modifier,
+        modifier: new-modifier,
       ))
+      // ctx.insert(rule.name, (
+      //   case: rule.case,
+      //   modifier: rule.modifier,
+      // ))
     }
     if rule.type == "clear" {
       let _ = ctx.remove(rule.name, default: none)
@@ -180,7 +199,7 @@
 #let superhide(body) = {
   show enum: hide
   show list: hide
-  hide(body) 
+  hide(body)
 }
 
 #let options = (
@@ -210,6 +229,9 @@
       ),
   )
 
+  if type(controls) != array {
+    panic("Controls must be an array. Did you forget the trailing `,`?")
+  }
   let steps = controls.len()
   let commands = process-steps(controls)
   if steps == 0 { steps += 1 }
@@ -224,3 +246,5 @@
     }
   }
 }
+
+#let tag = _tag
