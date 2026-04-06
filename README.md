@@ -31,13 +31,13 @@ Use Sanor when your presentation needs incremental content reveals, reusable tag
 Add the package to your Typst project:
 
 ```typst
-#import "@preview/sanor:0.0.1": *
+#import "@preview/sanor:0.1.0": *
 ```
 
 ## Quick Start
 
 ```typst
-#import "@preview/sanor:0.0.1": *
+#import "@preview/sanor:0.1.0": *
 
 #slide(
   s => {

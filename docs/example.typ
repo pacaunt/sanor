@@ -1,4 +1,4 @@
-#import "../src/lib.typ": *
+#import "@local/sanor:0.1.0": *
 
 // Set up presentation format
 #set page(paper: "presentation-16-9", margin: 2cm, fill: rgb("#1a1a1a"))
@@ -134,7 +134,7 @@
     let tag = tag.with(s)
     tag("title")[= Code Presentation]
     tag("code", ```typst
-    #import "@preview/sanor:0.0.1": *
+    #import "@preview/sanor:0.1.0": *
 
     #slide(
       s => {
