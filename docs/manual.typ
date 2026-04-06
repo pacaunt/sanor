@@ -225,9 +225,9 @@ Sanor is a powerful yet lightweight presentation framework for Typst that enable
 #slide(
   s => {
     let tag = tag.with(s)
-    tag("left", align(left)[Left content])
-    tag("right", align(right)[Right content])
-    tag("center", align(center)[Center content])
+    tag("left", place(left)[Left content])
+    tag("right", place(right)[Right content])
+    tag("center", place(center)[Center content])
   },
   controls: (
     apply("center"),
