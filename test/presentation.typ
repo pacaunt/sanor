@@ -73,6 +73,7 @@
   funcs.pos().fold(body, (acc, f) => f(acc))
 }
 #let transformer = object(transformer, hidden: it => none)
+#let (slide,) = set-option(hider: it => none)
 #slide(
   s => {
     let tag = tag.with(s)
@@ -103,7 +104,6 @@
       })
     })
   },
-  hider: it => none,
   controls: (
     (
       apply("all"),
@@ -149,3 +149,22 @@
   once("thesis"),
   once("slides")
 ))
+
+
+#let my-box = object(
+  rect,
+  normal: (fill: blue),
+  highlighted: (fill: yellow),
+  hidden: (stroke: none, fill: none)
+)
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("box", my-box[Normal Box])
+  },
+  controls: (
+    apply("box"),
+    apply("box", "highlighted"),
+  ),
+)

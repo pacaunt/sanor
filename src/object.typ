@@ -41,3 +41,20 @@
     return (info.func)(..info.args, ..info.modifier)
   }
 }
+
+#let make-object(
+  func,
+  ..modify-cases,
+) = (..args) => {
+  let obj = object(func, ..modify-cases)(..args)
+  let cases = obj(show-all: true).modifiers
+  let base = func(..args)
+  let result = (__base__: base)
+  for case in cases.keys() {
+    result.insert(case, call-object(obj, case))
+  }
+  return (..m) => {
+    let out = (object(func, ..result)(..args)(..m))
+    out.at("modifier", default: out)
+  }
+}

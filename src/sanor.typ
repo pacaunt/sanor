@@ -1,103 +1,4 @@
 #import "utils.typ"
-#import "object.typ": call-object, object, update-modifier
-
-#let make-object(
-  func,
-  ..modify-cases,
-) = (..args) => {
-  let obj = object(func, ..modify-cases)(..args)
-  let cases = obj(show-all: true).modifiers
-  let base = func(..args)
-  let result = (__base__: base)
-  for case in cases.keys() {
-    result.insert(case, call-object(obj, case))
-  }
-  return (..m) => {
-    let out = (object(func, ..result)(..args)(..m))
-    out.at("modifier", default: out)
-  }
-}
-
-#let _tag(
-  // the context of animation
-  // -> info
-  s,
-  // identifier
-  // -> str
-  name,
-  // the body
-  // -> any | object
-  body,
-  // hiding function or methods
-  // -> any
-  hider: auto,
-  // the ways to manipulate the body.
-  ..cases,
-) = {
-  let info = s.tag-info
-  let default-case = if info.is-shown { "__base__" } else { "hidden" }
-  let current-state = info.tags.at(name, default: (case: default-case, modifier: (:)))
-  let defined-case = info.defined-states
-
-  if hider == auto { hider = info.hider }
-  // make all body be an object
-  if type(body) != function {
-    body = object(() => body, hidden: hider, ..defined-case, ..cases)()
-  }
-  body = update-modifier(body, ..defined-case)
-  body = update-modifier(body, ..((current-state.case): current-state.modifier))
-  return call-object(body, current-state.case)
-}
-
-/// There are 3 types of state:
-/// 1. once
-/// 2. start-apply (apply)
-/// 3. stop-apply (clear)
-/// A state is in the form:
-/// (
-///   type: "once",
-///   name: {name},
-///   case: {case},
-///   modifier: {modifier},
-/// )
-
-
-#let _apply(name, ..modifier-cases) = kind => {
-  let styles-modifier = modifier-cases.named()
-  let modifier-cases = modifier-cases.pos()
-  let case = ()
-  let modifier = ()
-  for mc in modifier-cases {
-    if type(mc) == str { case.push(mc) } else { modifier.push(mc) }
-  }
-  if modifier == () { modifier = styles-modifier }
-
-  return (
-    type: kind,
-    name: name,
-    case: if case.len() == 0 { "__applied__" } else { case.remove(0) },
-    modifier: modifier,
-  )
-}
-
-#let apply(
-  name,
-  ..modifier-cases,
-) = _apply(name, ..modifier-cases)("apply")
-
-#let once(
-  name,
-  ..modifier-cases,
-) = _apply(name, ..modifier-cases)("once")
-
-#let clear(name) = {
-  return (
-    type: "clear",
-    name: name,
-    case: "__base__",
-    modifier: (:),
-  )
-}
 
 #let process-a-step(rules, ctx: (:), onces: (:)) = {
   if type(rules) != array { rules = (rules,) }
@@ -107,8 +8,7 @@
       if rule.name in ctx {
         let old-modifier = ctx.at(rule.name).modifier
         if (
-          type(old-modifier) == array 
-          and old-modifier.all(m => type(m) == function)
+          type(old-modifier) == array and old-modifier.all(m => type(m) == function)
         ) {
           new-modifier = it => utils.pipe(it, ..old-modifier, ..rule.modifier)
         } else {
@@ -121,10 +21,6 @@
         case: rule.case,
         modifier: new-modifier,
       ))
-      // ctx.insert(rule.name, (
-      //   case: rule.case,
-      //   modifier: rule.modifier,
-      // ))
     }
     if rule.type == "clear" {
       let _ = ctx.remove(rule.name, default: none)
@@ -168,8 +64,6 @@
   return result
 }
 
-#let cover(name) = apply(name, "hidden")
-#let revert(name) = apply(name, "__base__")
 
 #let control(i, body-func, steps, hider: hide, is-shown: false) = {
   let commands = process-steps(steps)
@@ -207,22 +101,24 @@
   subslide: 1,
   tag-info: (hider: hide, is-shown: false, defined-states: (:), tags: (:)),
   handout-index: auto,
+  hider: superhide,
 )
 
 #let slide(
-  info: (:),
+  info: options,
   func,
   controls: (),
-  hider: superhide,
+  hider: auto,
   is-shown: false,
   defined-states: (:),
 ) = {
+  let base-info = utils.merge-dicts(base: options, info)
   let info = utils.merge-dicts(
     base: options,
     info
       + (
         tag-info: (
-          hider: hider,
+          hider: if hider == auto { base-info.hider } else { hider },
           is-shown: is-shown,
           defined-states: defined-states,
         ),
@@ -247,4 +143,9 @@
   }
 }
 
-#let tag = _tag
+#let set-option(..new-options) = {
+  let options = utils.merge-dicts(base: options, new-options.named())
+  return (
+    slide: slide.with(info: options),
+  )
+}

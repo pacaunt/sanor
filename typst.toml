@@ -5,6 +5,6 @@ entrypoint = "lib.typ"
 authors = ["pacaunt <@pacaunt>"]
 license = "MIT"
 compiler = "0.13.1"
-repository = "https://github.com/pacaunt/chemformula"
+repository = "https://github.com/pacaunt/sanor"
 description = "Fast, small, presentation utility"
 categories = ["utility"]

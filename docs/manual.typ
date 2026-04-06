@@ -1,0 +1,339 @@
+#import "../src/lib.typ": *
+
+#set page(paper: "presentation-16-9", margin: 2cm)
+#set text(size: 20pt)
+
+#align(center)[
+  #text(size: 36pt, weight: "bold")[Sanor Manual]
+
+  #text(size: 24pt)[Presentation Framework for Typst]
+
+  #v(1cm)
+
+  Version 0.0.1
+
+  #v(2cm)
+]
+
+#pagebreak()
+
+= Introduction
+
+Sanor is a powerful yet lightweight presentation framework for Typst that enables creating animated slides with incremental content reveals. It provides a flexible system for controlling the visibility and appearance of content across multiple steps in a presentation.
+
+== Key Concepts
+
+- *Slides*: The main container for presentation content
+- *Tags*: Named pieces of content that can be controlled
+- *Controls*: Commands that define how content appears/disappears
+- *Objects*: Reusable elements with multiple states
+- *States*: Different appearances or behaviors of tagged content
+
+= Basic Usage
+
+== Simple Slide
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("title")[= Hello Sanor]
+    tag("content")[This is a basic animated slide.]
+  },
+  controls: (
+    once("title"),
+    apply("content"),
+  ),
+)
+
+== List Animation
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("header")[= Features]
+    tag("item1")[- Incremental reveals]
+    tag("item2")[- Content tagging]
+    tag("item3")[- State management]
+  },
+  controls: (
+    once("header"),
+    apply("item1"),
+    apply("item2"),
+    apply("item3"),
+  ),
+)
+
+= Control Functions
+
+== Apply vs Once
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("persistent")[This stays visible]
+    tag("temporary")[This appears briefly]
+  },
+  controls: (
+    apply("persistent"),  // Stays for remaining steps
+    once("temporary"),    // Only shows for this step
+    (),                   // Empty step
+  ),
+)
+
+== Clear and Revert
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("text")[This text will be modified]
+  },
+  controls: (
+    apply("text"),
+    apply("text", text.with(fill: red)),
+    apply("text", text.with(fill: blue, weight: "bold")),
+    clear("text"),  // Back to original
+    apply("text", text.with(fill: green)),
+  ),
+)
+
+= Content Modification
+
+== Styling Changes
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("equation", $ E = m c^2 $)
+  },
+  controls: (
+    apply("equation"),
+    apply("equation", it => {
+      show "E": set text(fill: red)
+      it
+    }),
+    apply("equation", it => {
+      show "m": set text(fill: blue)
+      show "c": set text(fill: green)
+      it
+    }),
+  ),
+)
+
+== Positioning
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("box", rect(width: 3cm, height: 2cm, fill: blue)[Box])
+  },
+  controls: (
+    apply("box"),
+    apply("box", place.with(center)),
+    apply("box", place.with(bottom + right)),
+  ),
+)
+
+= Object System
+
+== Basic Objects
+
+#let my-rect = object(
+  rect,
+  normal: (fill: blue, width: 3cm, height: 2cm),
+  highlighted: (fill: yellow, width: 3cm, height: 2cm),
+  hidden: (stroke: none, fill: none)
+)
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("rect", my-rect()[Normal])
+  },
+  controls: (
+    apply("rect"),
+    apply("rect", "highlighted"),
+    cover("rect"),
+  ),
+)
+
+== Enhanced Objects
+
+#let enhanced-rect = make-object(
+  rect,
+  normal: (fill: blue, width: 3cm, height: 2cm),
+  highlighted: (fill: yellow, width: 3cm, height: 2cm, stroke: red),
+  hidden: (stroke: none, fill: none)
+)
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("enhanced", enhanced-rect()[Enhanced])
+  },
+  controls: (
+    apply("enhanced"),
+    apply("enhanced", "highlighted"),
+    apply("enhanced", "hidden"),
+  ),
+)
+
+= Advanced Features
+
+== Custom States
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("custom", [Custom Text], faded: text.with(fill: gray), bold: text.with(weight: "bold"))
+  },
+  defined-states: (
+    faded: text.with(fill: gray),
+    bold: text.with(weight: "bold"),
+  ),
+  controls: (
+    apply("custom"),
+    apply("custom", "faded"),
+    apply("custom", "bold"),
+    apply("custom", "faded", "bold"),
+  ),
+)
+
+== Complex Animations
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("shape", circle(radius: 1cm, fill: blue))
+    tag("text", text(size: 24pt)[Circle])
+  },
+  controls: (
+    apply("shape"),
+    apply("text"),
+    (
+      apply("shape", it => {
+        scale(x: 150%, y: 150%)
+        it
+      }),
+      apply("text", text.with(fill: red)),
+    ),
+    revert("shape"),
+  ),
+)
+
+== Multiple Tags in One Step
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("left", align(left)[Left content])
+    tag("right", align(right)[Right content])
+    tag("center", align(center)[Center content])
+  },
+  controls: (
+    apply("center"),
+    (apply("left"), apply("right")),
+    (cover("left"), cover("right")),
+  ),
+)
+
+= Handout Mode
+
+#slide(
+  info: (handout: true, handout-index: 2),
+  s => {
+    let tag = tag.with(s)
+    tag("title")[= Handout Example]
+    tag("step1")[Step 1 content]
+    tag("step2")[Step 2 content]
+    tag("step3")[Step 3 content]
+  },
+  controls: (
+    once("title"),
+    apply("step1"),
+    apply("step2"),
+    apply("step3"),
+  ),
+)
+
+= Tips and Best Practices
+
+- Use descriptive tag names for clarity
+- Group related controls in tuples for simultaneous actions
+- Define reusable objects for consistent styling
+- Use `defined-states` for common modifications
+- Test animations in both presentation and handout modes
+
+= API Reference
+
+== Core Functions
+
+- `slide(func, controls, hider, is-shown, defined-states)`: Create animated slide
+- `tag(s, name, body, hider, ..cases)`: Tag content for animation
+- `apply(name, ..modifiers)`: Apply persistent modifier
+- `once(name, ..modifiers)`: Apply one-time modifier
+- `clear(name)`: Remove all modifiers
+- `cover(name)`: Hide content (shortcut for `apply(name, "hidden")`)
+- `revert(name)`: Show base content (shortcut for `apply(name, "__base__")`)
+
+== Object System
+
+- `object(func, ..cases)`: Create object with states
+- `make-object(func, ..cases)`: Create enhanced object
+- `update-modifier(obj, ..modifiers)`: Update object modifiers
+- `call-object(obj, case)`: Apply object state
+
+== Utilities
+
+- `process-steps(steps)`: Process control sequences
+- `control(i, body-func, steps, hider, is-shown)`: Low-level control function
+- `subslide(info, func)`: Create subslide
+- `superhide(body)`: Comprehensive hide function
+
+= Examples Gallery
+
+== Code Presentation
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("code", ```typst
+    #let add(a, b) = a + b
+    #add(1, 2)
+    ```)
+  },
+  controls: (
+    apply("code"),
+    apply("code", it => {
+      show "add": set text(fill: blue)
+      it
+    }),
+  ),
+)
+
+== Diagram Animation
+
+#slide(
+  s => {
+    let tag = tag.with(s)
+    tag("diagram", [
+      ```
+  A ─── B
+  │     │
+  C ─── D
+      ```
+    ])
+  },
+  controls: (
+    apply("diagram"),
+    apply("diagram", it => {
+      show "A": set text(fill: red)
+      it
+    }),
+    apply("diagram", it => {
+      show "A|B": set text(fill: red)
+      it
+    }),
+  ),
+)
+
+This manual demonstrates the core features of Sanor. For more advanced usage, refer to the test files and source code.
