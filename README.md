@@ -13,6 +13,19 @@ Sanor is a Typst package that provides utilities for creating animated presentat
 - **Handout Support**: Generate static handouts from animated presentations
 - **Subslide Management**: Handle multiple slides within a single frame
 
+## Presentation Package Comparison
+
+There are several Typst presentation packages, and Sanor is designed specifically for animated, stepwise slide control.
+
+| Package | Best fit | Sanor comparison |
+| --- | --- | --- |
+| `Sanor` | Animated presentations with incremental reveals and stateful slide content | Uses `slide()`, `tag()`, `apply()`, `once()`, and object states to keep presentation logic explicit and reusable. |
+| `Touying` | Lightweight slide decks with straightforward page-based slide definitions | Typically simpler than Sanor, with fewer built-in animation primitives. Sanor is stronger when you need fine-grained reveal control and custom state changes. |
+| `Polylux` | Design-oriented, theme-focused presentations | Often targeted at polished layout and visual styling. Sanor is more focused on dynamic behavior and step-by-step content sequencing rather than prebuilt visual themes. |
+| `presentate` | General Typst presentation framework with slide scaffolding | Usually provides a higher-level slide structure and convenience defaults. Sanor offers more explicit animation controls and handout support for presentations that evolve over multiple steps. |
+
+Use Sanor when your presentation needs incremental content reveals, reusable tagged content, or handout generation. Use `Touying`, `Polylux`, or `presentate` when you prefer a different slide abstraction, default theme, or simpler static deck workflow.
+
 ## Installation
 
 Add the package to your Typst project:
@@ -98,10 +111,6 @@ Creates an object with different states.
 - `func`: Base function to create the object
 - `..modify-cases`: Named arguments defining different states
 
-#### `make-object(func, ..modify-cases)`
-
-Creates an enhanced object that supports all defined cases.
-
 ## Examples
 
 For comprehensive examples demonstrating all features of Sanor, see [`docs/example.typ`](docs/example.typ). This file contains a complete presentation showcasing:
@@ -183,6 +192,10 @@ typst compile docs/example.typ
 ### Handouts
 
 ```typst
+// for globally set handout mode
+#let (slide,) = set-option(handout: true) 
+
+// for setting handout mode per-slide
 #slide(
   info: (handout: true),
   s => { /* slide content */ },
