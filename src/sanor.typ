@@ -5,23 +5,35 @@
   for rule in rules {
     if rule.type == "apply" {
       let new-modifier
-      if rule.name in ctx {
-        let old-modifier = ctx.at(rule.name).modifier
-        if (
-          type(old-modifier) == array and old-modifier.all(m => type(m) == function)
-        ) {
-          new-modifier = it => utils.pipe(it, ..old-modifier, ..rule.modifier)
-        } else {
-          new-modifier = rule.modifier
-        }
+      let old-modifier = ()
+      if (
+        rule.name in ctx
+          and {
+            old-modifier = ctx.at(rule.name).modifier
+            (
+              (
+                type(old-modifier) == array and old-modifier.all(m => type(m) == function)
+              )
+                and (
+                  {
+                    if type(rule.modifier) == function { rule.modifier = (rule.modifier,) }
+                    type(rule.modifier) == array and rule.modifier.all(m => type(m) == function)
+                  }
+                )
+            )
+          }
+      ) {
+        new-modifier = old-modifier + rule.modifier
       } else {
         new-modifier = rule.modifier
       }
+
       ctx.insert(rule.name, (
         case: rule.case,
         modifier: new-modifier,
       ))
     }
+    
     if rule.type == "clear" {
       let _ = ctx.remove(rule.name, default: none)
     }

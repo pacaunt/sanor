@@ -33,7 +33,7 @@
   if type(info.modifier) == function {
     (info.modifier)((info.func)(..info.args))
   } else if (
-    type(info.modifier) == array and info.modifier.len() > 0 and type(info.modifier.first()) == function
+    type(info.modifier) == array and info.modifier.all(f => type(f) == function)
   ) {
     let base = (info.func)(..info.args)
     utils.pipe(base, ..info.modifier)
