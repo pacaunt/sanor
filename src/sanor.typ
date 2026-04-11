@@ -1,29 +1,26 @@
 #import "utils.typ"
 
-#let process-a-step(rules, ctx: (:), onces: (:)) = {
+#let process-a-step(rules, ctx: (:), onces: (:), order: 0) = {
   if type(rules) != array { rules = (rules,) }
   for rule in rules {
     if rule.type == "apply" {
       let new-modifier
       let old-modifier = ()
-      if (
-        rule.name in ctx
-          and {
-            old-modifier = ctx.at(rule.name).modifier
-            (
-              (
-                type(old-modifier) == array and old-modifier.all(m => type(m) == function)
-              )
-                and (
-                  {
-                    if type(rule.modifier) == function { rule.modifier = (rule.modifier,) }
-                    type(rule.modifier) == array and rule.modifier.all(m => type(m) == function)
-                  }
-                )
-            )
-          }
-      ) {
-        new-modifier = old-modifier + rule.modifier
+      if rule.name in ctx {
+        old-modifier = ctx.at(rule.name).modifier
+        if type(rule.modifier) == function { rule.modifier = (rule.modifier,) }
+        if (
+          type(old-modifier) == array
+            and type(rule.modifier) == array
+            and old-modifier.all(m => type(m) == function)
+            and rule.modifier.all(m => type(m) == function)
+        ) {
+          new-modifier = old-modifier + rule.modifier
+        } else if type(old-modifier) == dictionary and type(rule.modifier) == dictionary {
+          new-modifier = utils.merge-dicts(base: old-modifier, rule.modifier)
+        } else {
+          new-modifier = rule.modifier
+        }
       } else {
         new-modifier = rule.modifier
       }
@@ -31,9 +28,10 @@
       ctx.insert(rule.name, (
         case: rule.case,
         modifier: new-modifier,
+        order: order,
       ))
     }
-    
+
     if rule.type == "clear" {
       let _ = ctx.remove(rule.name, default: none)
     }
@@ -48,6 +46,7 @@
       ctx.insert(rule.name, (
         case: case,
         modifier: modifier,
+        order: order,
       ))
     }
   }
@@ -58,9 +57,9 @@
   let ctx = (:)
   let onces = (:)
   let result = ()
-  for step in steps {
+  for (i, step) in steps.enumerate() {
     let original = ctx
-    (ctx, onces) = process-a-step(step, ctx: ctx, onces: onces)
+    (ctx, onces) = process-a-step(step, ctx: ctx, onces: onces, order: i)
     result.push(ctx)
     for (name, applied) in onces.pairs() {
       if applied {

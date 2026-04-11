@@ -1,0 +1,14 @@
+/home/pacaunt/Documents/Playground/rust/svgx/target/wasm32-unknown-unknown/release/deps/serde-467fed0004d06f92.d: /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/pacaunt/Documents/Playground/rust/svgx/target/wasm32-unknown-unknown/release/build/serde-fcf470d59b9d67ab/out/private.rs
+
+/home/pacaunt/Documents/Playground/rust/svgx/target/wasm32-unknown-unknown/release/deps/libserde-467fed0004d06f92.rlib: /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/pacaunt/Documents/Playground/rust/svgx/target/wasm32-unknown-unknown/release/build/serde-fcf470d59b9d67ab/out/private.rs
+
+/home/pacaunt/Documents/Playground/rust/svgx/target/wasm32-unknown-unknown/release/deps/libserde-467fed0004d06f92.rmeta: /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs /home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs /home/pacaunt/Documents/Playground/rust/svgx/target/wasm32-unknown-unknown/release/build/serde-fcf470d59b9d67ab/out/private.rs
+
+/home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/lib.rs:
+/home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/integer128.rs:
+/home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/mod.rs:
+/home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/de.rs:
+/home/pacaunt/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/serde-1.0.228/src/private/ser.rs:
+/home/pacaunt/Documents/Playground/rust/svgx/target/wasm32-unknown-unknown/release/build/serde-fcf470d59b9d67ab/out/private.rs:
+
+# env-dep:OUT_DIR=/home/pacaunt/Documents/Playground/rust/svgx/target/wasm32-unknown-unknown/release/build/serde-fcf470d59b9d67ab/out

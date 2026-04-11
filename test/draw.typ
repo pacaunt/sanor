@@ -16,7 +16,7 @@
 
 }, controls: (
   apply("grid"),
-  once("grid", it => {
+  apply("grid", it => {
     draw.scale(x: 2)
     draw.rotate(45deg)
     it
@@ -30,3 +30,9 @@
     it
   })
 ))
+
+#slide(s => {
+  import annotation: *
+  place((50%, 50%), anchor: top + left)[HELLO]
+  circle((0, 0), stroke: green, radius: 3)[]
+}, controls: ())

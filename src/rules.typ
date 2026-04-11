@@ -1,4 +1,66 @@
-#import "object.typ": make-object,  object, update-modifier,  call-object
+#import "object.typ": call-object, make-object, object, update-modifier
+
+#let unwrap-case(case) = ((case.case):case.modifier)
+
+#let _tag(
+  // the context of animation
+  // -> info
+  info: (:),
+  // identifier
+  // -> str
+  name: none,
+  // class identifier
+  // -> str
+  class: none,
+  // the body
+  // -> any | object
+  body,
+  // hiding function or methods
+  // -> any
+  hider: auto,
+  // the ways to manipulate the body.
+  ..cases,
+) = {
+  let info = info.tag-info
+  let default-case = if info.is-shown {
+    (case: "__base__", modifier: (:), order: 0)
+  } else {
+    (case: "hidden", modifier: (:), order: 0)
+  }
+
+  if class == none and name == none {
+    panic("Please specify at least a name or a class.")
+  }
+
+  let all-cases = ()
+
+  if name != none {
+    all-cases.push(info.tags.at(name, default: default-case))
+  }
+
+  if class != none {
+    all-cases.push(info.tags.at(class, default: default-case))
+  }
+
+  all-cases = all-cases.sorted(key: c => c.order)
+
+  let current-case = all-cases.last().case
+
+  let defined-case = info.defined-states
+  all-cases = (defined-case,) + all-cases.map(unwrap-case)
+
+  if hider == auto { hider = info.hider }
+  // make all body be an object
+  if type(body) != function {
+    body = object(() => body, hidden: hider, ..defined-case, ..cases)()
+  }
+
+  for cs in all-cases {
+    body = update-modifier(body, ..cs)
+  }
+
+  return call-object(body, current-case)
+}
 
 #let tag(
   // the context of animation
@@ -13,22 +75,13 @@
   // hiding function or methods
   // -> any
   hider: auto,
+  // alternative class identifier
+  // -> str
+  class: none,
   // the ways to manipulate the body.
   ..cases,
 ) = {
-  let info = s.tag-info
-  let default-case = if info.is-shown { "__base__" } else { "hidden" }
-  let current-state = info.tags.at(name, default: (case: default-case, modifier: (:)))
-  let defined-case = info.defined-states
-
-  if hider == auto { hider = info.hider }
-  // make all body be an object
-  if type(body) != function {
-    body = object(() => body, hidden: hider, ..defined-case, ..cases)()
-  }
-  body = update-modifier(body, ..defined-case)
-  body = update-modifier(body, ..((current-state.case): current-state.modifier))
-  return call-object(body, current-state.case)
+  _tag(info: s, name: name, class: class, hider: hider, body, ..cases)
 }
 
 // There are 3 types of state:
