@@ -1,4 +1,4 @@
-#import "class.typ": class, class-of, is-class 
+#import "class.typ": class, class-of, is-class
 #import "utils.typ" as utils: strfmt
 
 #let Case(stylers, wrappers, active: false) = class(
@@ -51,13 +51,27 @@
   Case(stylers, wrappers)
 }
 
+#let make-case(maybe-case) = {
+  if class-of(maybe-case) in (str, "modifier") {
+    return maybe-case
+  }
+  if class-of(maybe-case) == dictionary {
+    return case(..maybe-case)
+  }
+  if class-of(maybe-case) == function {
+    return case(maybe-case)
+  }
+
+  return case(it => maybe-case)
+}
+
 #let resolve-case(maybe-case, defined: (:)) = {
-  if type(maybe-case) == str {
+  let case = make-case(maybe-case)
+  if type(case) == str {
     return defined.at(maybe-case)
-  } else {
-    if class-of(maybe-case) == "modifier" {
-      return maybe-case
-    }
+  }
+  if class-of(case) == "modifier" {
+    return case
   }
 
   panic(strfmt("Unsupported case `{}`", maybe-case))
@@ -66,7 +80,7 @@
 /// `defined-cases` means  *named* cases.
 #let _object(func, hidden: case(hide), defined-cases) = {
   // define the hidden and base cases
-  defined-cases.hidden = hidden
+  defined-cases.hidden = resolve-case(hidden, defined: defined-cases)
   defined-cases.base = Case((:), (it => it,))
 
   Object(
@@ -109,12 +123,7 @@
 #let object(func, hidden: case(hide), ..defined-cases) = {
   assert(defined-cases.pos() == (), message: "Unexpected positional arguments")
 
-  let cases = defined-cases.named()
-
-  assert(
-    cases.values().all(c => class-of(c) == "modifier"),
-    message: "The defined case must be in the form `case(..modifier)`.",
-  )
+  let cases = utils.map-dict-values(defined-cases.named(), make-case)
 
   (..args) => {
     let obj = _object(func.with(..args), hidden: hidden, cases)

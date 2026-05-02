@@ -22,14 +22,8 @@
 #let Rule(name, applier) = class("rule", name: name, applier: applier)
 
 #let make-applier(kind, ..maybe-cases, inherit: true, active: auto) = {
-  let kwarg-cases = (case(..maybe-cases.named()),)
-  let arg-cases = maybe-cases
-    .pos()
-    .map(arg => {
-      if class-of(arg) == str or class-of(arg) == "modifier" { arg } else {
-        if type(arg) == function { case(arg) } else { case(it => arg) }
-      }
-    })
+  let kwarg-cases = (make-case(maybe-cases.named()),)
+  let arg-cases = maybe-cases.pos().map(make-case)
   Applier(kind, kwarg-cases + arg-cases, inherit: inherit, active: active)
 }
 

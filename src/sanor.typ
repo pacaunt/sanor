@@ -34,8 +34,10 @@
 /// ], s))
 /// ```
 #let tag(s, name, body, hidden: auto, ..defined-cases) = {
+  let (ctx, ..) = s
+  if hidden == auto { hidden = ctx.defined-cases.hidden }
   let resolved-cases = resolve(s, name)
-  make-object(body, ..defined-cases)(..resolved-cases)
+  make-object(body, hidden: hidden, ..defined-cases)(..resolved-cases)
 }
 
 /// The `pause` function.
@@ -65,7 +67,7 @@
 }
 
 #let subslide(ctx, func) = {
-  let (body, (ctx, ..)) = func((ctx, 1))
+  let (body, (ctx, ..)) = func((ctx,))
   let i = ctx.subslide
 
   {
@@ -128,7 +130,7 @@
   func,
   hidden: auto,
   is-shown: false,
-  defined-states: (:),
+  defined-cases: (:),
 ) = {
   let base-ctx = utils.merge-dicts(base: default-options, options)
   let ctx = utils.merge-dicts(
@@ -136,16 +138,16 @@
     options
       + (
         is-shown: is-shown,
-        defined-states: defined-states
+        defined-cases: defined-cases
           + (
             hidden: if hidden == auto { case(superhide) } else { hidden },
           ),
       ),
   )
 
-  let (_, (_, ..actions)) = func((ctx, 1))
+  let (_, (_, ..actions)) = func((ctx,))
 
-  let steps = get-total-steps(actions) 
+  let steps = get-total-steps(actions)
   ctx = _process(ctx, actions)
 
   if steps == 0 { steps += 1 }

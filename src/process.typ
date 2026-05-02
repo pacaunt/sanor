@@ -9,7 +9,7 @@
 /// `#s.push(apply("name"))` -> apply the rule `apply("name")` here
 
 #let get-total-steps(actions) = {
-  actions.map(a => if class-of(a) == int { a } else { 1 }).sum()
+  actions.map(a => if class-of(a) == int { a } else { 1 }).sum(default: 0)
 }
 
 /// A step consists of multiple rules, and each rules contains a definition.

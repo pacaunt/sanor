@@ -14,3 +14,7 @@
 #let pipe(base, ..funcs) = {
   funcs.pos().fold(base, (acc, f) => f(acc))
 }
+
+#let map-dict-values(dict, func) = {
+  dict.pairs().map(((k, v)) => (k, func(v))).to-dict()
+}
