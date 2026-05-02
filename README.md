@@ -6,10 +6,10 @@ Sanor is a Typst package that provides utilities for creating animated presentat
 
 ## Features
 
-- **Incremental Reveals**: Show content step by step with `apply()`, `once()`, and `clear()` functions
+- **Incremental Reveals**: Show content step by step with `apply()`, `once()`, and `cover()` functions
 - **Content Tagging**: Use `tag()` to mark content that can be animated
 - **Object System**: Create reusable objects with different states using `object()`
-- **Slide Controls**: Define animation sequences with the `slide()` function
+- **Slide Controls**: Define animation sequences with `s.push()` for flexible step-by-step control
 - **Handout Support**: Generate static handouts from animated presentations
 - **Subslide Management**: Handle multiple slides within a single frame
 
@@ -31,176 +31,200 @@ Use Sanor when your presentation needs incremental content reveals, reusable tag
 Add the package to your Typst project:
 
 ```typst
-#import "@preview/sanor:0.1.0": *
+#import "@preview/sanor:0.2.1": *
 ```
+
+*Note: Version 0.2.1 may not be published yet. Check the latest available version on [Typst Universe](https://typst.app/universe). For local development, import from the local path.*
 
 ## Quick Start
 
 ```typst
-#import "@preview/sanor:0.1.0": *
+#import "@preview/sanor:0.2.1": *
 
-#slide(
-  s => {
-    let tag = tag.with(s)
-    tag("title")[= Hello World]
-    tag("content")[This is my first animated slide!]
-  },
-  controls: (
-    once("title"),  // Show title once
-    apply("content"),  // Then show content
-  ),
-)
+#slide(s => ([
+  #let tag = tag.with(s)
+  = Hello World
+  #tag("title")[This is a presentation slide]
+  #s.push(apply("title", text.with(fill: blue)))
+], s))
 ```
 
 ## API Reference
 
 ### Core Functions
 
-#### `slide(info: (:), func, controls: (), hider: superhide, is-shown: false, defined-states: (:))`
+#### `slide(options: (:), func, hidden: auto, is-shown: false, defined-states: (:))`
 
-Creates an animated slide with the specified controls.
+Creates an animated slide where content can be revealed or modified step by step. The function takes a slide context `s` and returns content. Use `s.push()` to add actions that control the animation sequence.
 
-- `func`: Function that takes slide info and returns the slide content
-- `controls`: Array of control commands defining the animation sequence
-- `hider`: Function to hide content (default: `superhide`)
-- `is-shown`: Whether to show hidden content by default (default: `false`)
-- `defined-states`: Predefined states for tagged content
+- `options` (dict): Options for the slide, including handout mode, cases, etc.
+- `func` (function): A function that takes the slide context `s` and returns the slide content.
+- `hidden` (auto, case): The default hidden case.
+- `is-shown` (bool): Whether hidden content is shown by default.
+- `defined-states` (dict): Predefined states for the slide.
 
-#### `tag(s, name, body, hider: auto, ..cases)`
+#### `tag(s, name, body, hidden: auto, ..defined-cases)`
 
-Tags content for animation control.
+Tags content for animation control. This function allows you to mark content that can be modified or revealed step by step during a presentation.
 
-- `s`: Slide context (provided by `slide()`)
-- `name`: Unique identifier for the tagged content
-- `body`: Content to tag (can be text, elements, or objects)
-- `hider`: Hide function (auto uses slide's hider)
-- `..cases`: Additional state cases for the content
+- `s` (context): The slide context provided by `slide()`.
+- `name` (str): A unique identifier for the tagged content.
+- `body` (content): The content to tag.
+- `hidden` (auto, case): The case to use when content is hidden.
+- `..defined-cases` (cases): Additional cases defined for this tag.
 
-#### `apply(name, ..modifier-cases)`
+#### `pause(s, body, hidden: auto)`
 
-Applies a modifier to tagged content for the current and subsequent steps.
+Shows content after a certain number of steps. Must be used with `#s.push(1)` for step forward.
 
-- `name`: Tag name to apply to
-- `..modifier-cases`: Modifiers or state names to apply
+- `s` (context): The slide context.
+- `body` (content): The content to show after pause.
+- `hidden` (auto, case): The case to use when hidden.
 
-#### `once(name, ..modifier-cases)`
+#### `set-option(..new-options)`
 
-Applies a modifier to tagged content for only one step.
+Sets global options for slides. This function allows you to configure default options for all slides, such as enabling handout mode.
 
-- `name`: Tag name to apply to
-- `..modifier-cases`: Modifiers or state names to apply
+- `..new-options` (any): Named options to set globally.
 
-#### `clear(name)`
+### Animation Rules
 
-Removes all modifiers from tagged content.
+#### `apply(name, ..cases, inherit: true)`
 
-- `name`: Tag name to clear
+Applies cases to tagged content for the current and all subsequent steps.
 
-#### `cover(name)` and `revert(name)`
+- `name` (str): The tag name to apply to.
+- `..cases` (any): Cases or modifiers to apply.
+- `inherit` (bool): Whether to combine with existing active cases.
 
-Convenience functions:
-- `cover(name)`: Equivalent to `apply(name, "hidden")`
-- `revert(name)`: Equivalent to `apply(name, "__base__")`
+#### `once(name, ..cases, inherit: true)`
+
+Applies cases to tagged content for only one step.
+
+- `name` (str): The tag name to apply to.
+- `..cases` (any): Cases or modifiers to apply.
+- `inherit` (bool): Whether to combine with existing active cases.
+
+#### `cover(name, ..cases)`
+
+Covers tagged content by applying cases and preventing inheritance.
+
+- `name` (str): The tag name to cover.
+- `..cases` (any): Cases or modifiers to apply.
+
+#### `revert(name, ..cases)`
+
+Reverts tagged content to specified cases without inheritance.
+
+- `name` (str): The tag name to revert.
+- `..cases` (any): Cases or modifiers to apply.
+
+#### `force(name, ..cases)`
+
+Forces application of cases without inheritance. Equivalent to `apply(name, ..cases, inherit: false)`.
+
+- `name` (str): The tag name to force.
+- `..cases` (any): Cases or modifiers to apply.
+
+### Simultaneous Actions
+
+To apply multiple actions simultaneously in the same step, use an array:
+
+```typst
+#s.push((apply("left"), apply("right")))  // Both applied at once
+```
 
 ### Object System
 
-#### `object(func, ..modify-cases)`
+#### `object(func, hidden: case(hide), ..defined-cases)`
 
-Creates an object with different states.
+Creates an object with different states. This function creates a reusable object that can be displayed in different states defined by cases.
 
-- `func`: Base function to create the object
-- `..modify-cases`: Named arguments defining different states
+- `func` (function): The base function to create the object.
+- `hidden` (case): The case to use when the object is hidden.
+- `..defined-cases` (cases): Named cases defining different states.
+
+#### `case(..modifiers)`
+
+Creates a case that can modify content with stylers and wrappers.
+
+- `..modifiers` (any): Named stylers and positional wrapper functions.
 
 ## Examples
-
-For comprehensive examples demonstrating all features of Sanor, see [`docs/example.typ`](docs/example.typ). This file contains a complete presentation showcasing:
-
-- Basic animations with `apply()` and `once()`
-- Content modification and styling
-- Object system with state management
-- Complex multi-element animations
-- Code and mathematical content presentation
-- Custom states and simultaneous changes
-- Handout mode generation
-
-You can compile the examples with:
-
-```bash
-typst compile docs/example.typ
-```
 
 ### Basic Animation
 
 ```typst
-#slide(
-  s => {
-    let tag = tag.with(s)
-    tag("title")[= Presentation Title]
-    tag("point1")[- First point]
-    tag("point2")[- Second point]
-    tag("point3")[- Third point]
-  },
-  controls: (
-    once("title"),
-    apply("point1"),
-    apply("point2"),
-    apply("point3"),
-  ),
-)
+#slide(s => ([
+  #let tag = tag.with(s)
+  = Basic Animation
+  #tag("item1")[- First item]
+  #tag("item2")[- Second item]
+  #tag("item3")[- Third item]
+  #s.push(apply("item1"))
+  #s.push(apply("item2"))
+  #s.push(apply("item3"))
+], s))
+```
+
+### Using `pause`
+
+```typst
+#slide(s => ([
+  This appears immediately.
+  #pause(s)[This appears after a step.]
+  #s.push(1)
+], s))
 ```
 
 ### Content Modification
 
 ```typst
-#slide(
-  s => {
-    let tag = tag.with(s)
-    tag("equation", $ E = m c^2 $)
-  },
-  controls: (
-    apply("equation"),
-    apply("equation", it => {
-      show "E": set text(fill: red)
-      it
-    }),
-  ),
-)
+#slide(s => ([
+  #let tag = tag.with(s)
+  #tag("text", text(size: 28pt)[Hello World])
+  #s.push(apply("text"))
+  #s.push(apply("text", text.with(fill: blue)))
+  #s.push(apply("text", text.with(fill: red, weight: "bold")))
+], s))
 ```
 
 ### Using Objects
 
 ```typst
-#let my-box = object(
+#let colored-box = object(
   rect,
-  normal: (fill: blue),
-  highlighted: (fill: yellow),
-  hidden: (stroke: none, fill: none)
+  normal: case(width: 4cm, height: 3cm, fill: blue),
+  highlighted: case(width: 4cm, height: 3cm, fill: yellow),
 )
 
-#slide(
-  s => {
-    let tag = tag.with(s)
-    tag("box", my-box[Normal Box])
-  },
-  controls: (
-    apply("box"),
-    apply("box", "highlighted"),
-  ),
-)
+#slide(s => ([
+  #let tag = tag.with(s)
+  #tag("box", colored-box()[Normal Box])
+  #s.push(apply("box"))
+  #s.push(apply("box", "highlighted"))
+], s))
 ```
 
-### Handouts
+### Simultaneous Changes
 
 ```typst
-// for globally set handout mode
-#let (slide,) = set-option(handout: true) 
+#slide(s => ([
+  #let tag = tag.with(s)
+  #tag("left", place(left)[Left])
+  #tag("right", place(right)[Right])
+  #s.push((apply("left"), apply("right"))) // Both at once
+], s))
+```
 
-// for setting handout mode per-slide
-#slide(
-  info: (handout: true),
-  s => { /* slide content */ },
-  controls: (/* controls */),
-)
+### Handout Mode
+
+```typst
+// For global handout mode
+#let (slide,) = set-option(handout: true)
+
+// For per-slide handout
+#slide(options: (handout: true), s => ([ /* content */ ], s))
 ```
 
 ## Advanced Usage
@@ -208,39 +232,14 @@ typst compile docs/example.typ
 ### Custom States
 
 ```typst
-#slide(
-  s => {
-    let tag = tag.with(s)
-    tag("text", [Hello], faded: text.with(fill: gray))
-  },
-  defined-states: (
-    faded: text.with(fill: gray),
-  ),
-  controls: (
-    apply("text"),
-    apply("text", "faded"),
-  ),
-)
+#slide(s => ([
+  #let tag = tag.with(s)
+  #tag("text", [Hello], faded: case(text.with(fill: gray)))
+  #s.push(apply("text"))
+  #s.push(apply("text", "faded"))
+], s))
 ```
 
-### Complex Animations
-
-```typst
-#slide(
-  s => {
-    let tag = tag.with(s)
-    tag("diagram", cetz.canvas({ /* diagram code */ }))
-  },
-  controls: (
-    apply("diagram"),
-    apply("diagram", it => {
-      cetz.draw.rotate(45deg)
-      it
-    }),
-    revert("diagram"),
-  ),
-)
-```
 
 ## License
 

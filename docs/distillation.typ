@@ -7,18 +7,17 @@
 
 #let otext(s, body, ..styles, name: none) = tag(
   s,
-  name, 
-  class: "text", 
+  name,
+  class: "text",
   object(text, hidden: hide)(body)
 )
 
-#slide(s => {
-  let tag = tag.with(s)
-  tag("title")[= Welcome]
-  otext(s, name: "txt")[SOME TEXT]
-}, controls: (
-  apply("title"),
-  apply("text", fill: red, weight: "bold"),
-  apply("txt", fill: green),
-))
+#slide(s => ([
+  #let tag = tag.with(s)
+  #tag("title")[= Welcome]
+  #otext(s, name: "txt")[SOME TEXT]
+  #s.push(apply("title"))
+  #s.push(apply("text", fill: red, weight: "bold"))
+  #s.push(apply("txt", fill: green))
+], s))
 

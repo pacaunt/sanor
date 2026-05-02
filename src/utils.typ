@@ -1,3 +1,5 @@
+#import "@preview/oxifmt:1.0.0": strfmt
+
 #let merge-dicts(dict, base: (:)) = {
   for (key, val) in dict {
     if type(val) == dictionary and key in base.keys() {

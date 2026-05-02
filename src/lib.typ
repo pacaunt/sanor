@@ -1,6 +1,3 @@
-#import "sanor.typ": slide, set-option
-#import "rules.typ": tag, apply, clear, once, revert, cover
-#import "object.typ": object
-#import "draw.typ" as draw: element, cetz
-#import "../svgx/lib.typ" as svg
-#import "annotation.typ"
+#import "sanor.typ": slide, pause, tag, set-option
+#import "object-case.typ": case, object,
+#import "rules.typ": apply, once, revert, cover, force
