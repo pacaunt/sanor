@@ -1,5 +1,5 @@
 #import "utils.typ"
-#import "object-case.typ": make-object
+#import "object-case.typ": make-object, resolve-case
 #import "rules.typ": Applier
 #import "class.typ": class, class-of
 
@@ -41,18 +41,33 @@
 }
 
 #let _process-a-step(status, step) = {
+  let prev = status.appliers
   let out = ()
   let is-last-once = false
 
   for applier in step {
     if applier.active != auto { status.active = applier.active }
-    if applier.inherit { out += (applier,) } else { out = (applier,) }
+
+    if applier.kind == "clear" {
+      if status.active {
+        prev = (status.base-display,)
+      } else {
+        prev = (status.base-hidden,)
+      }
+    }
+
+    if applier.inherit {
+      out += (applier,)
+    } else {
+      out = (applier,)
+    }
+
     // to capture the last `once` and deactivate if there is nothing to show.
     is-last-once = applier.kind == "once"
   }
 
   // filter out the `once` effect and the auto active element from `status.active`.
-  status.appliers = out.filter(a => (a.kind != "once" and a.active != auto))
+  status.appliers = prev + out.filter(a => (a.kind != "once" and a.active != auto))
   if is-last-once and status.appliers == () { status.active = false }
 
   return (status, out)
@@ -62,7 +77,13 @@
   let base-display = Applier("apply", ("base",), inherit: true, active: auto)
   let base-hidden = Applier("apply", ("hidden",), inherit: true, active: auto)
 
-  let status = class("status", active: ctx.is-shown, appliers: ())
+  let status = class(
+    "status",
+    active: ctx.is-shown,
+    appliers: (),
+    base-display: base-display,
+    base-hidden: base-hidden,
+  )
 
   let result = ()
 

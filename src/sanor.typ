@@ -35,9 +35,9 @@
 /// ```
 #let tag(s, name, body, hidden: auto, ..defined-cases) = {
   let (ctx, ..) = s
-  if hidden == auto { hidden = ctx.defined-cases.hidden }
+  if hidden == auto { hidden = ctx.defined-cases.remove("hidden") }
   let resolved-cases = resolve(s, name)
-  make-object(body, hidden: hidden, ..defined-cases)(..resolved-cases)
+  make-object(body, ..ctx.defined-cases, ..defined-cases, hidden: hidden)(..resolved-cases)
 }
 
 /// The `pause` function.

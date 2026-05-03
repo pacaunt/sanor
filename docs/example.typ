@@ -1,219 +1,317 @@
+/// Sanor Examples
+///
+/// This file demonstrates the key features of the Sanor presentation framework:
+/// - Pause: Reveal content step by step with manual control
+/// - Tag + Apply/Once: Mark and animate specific elements
+/// - Objects: Create reusable components with multiple states
+/// - Cases: Define named transformations for flexible styling
+/// - Simultaneous actions: Animate multiple elements at once
+///
+/// Each slide is a standalone example showing one or more features.
+
 #import "../src/lib.typ": *
 
-// Set up presentation format
-#set page(paper: "presentation-16-9", margin: 2cm, fill: rgb("#1a1a1a"))
-#set text(fill: white, size: 24pt)
+// Set up presentation format.
+#set page(paper: "presentation-16-9", fill: luma(20))
+#set text(size: 25pt, fill: white)
 
-// Title slide
-#slide(s => ([
-  #let tag = tag.with(s)
-  #tag("title")[
-    #text(size: 48pt, weight: "bold")[Sanor Examples]
-    #v(1cm)
-    #text(size: 32pt)[Presentation Framework for Typst]
-    #v(2cm)
-    #text(size: 24pt)[Demonstrating Key Features]
-  ]
-  #s.push(apply("title"))
-], s))
+/// Slide 1: Title Slide
+///
+/// Basic slide setup with title and author. This demonstrates the minimal
+/// structure needed for a Sanor slide: wrap content in a function that receives
+/// the slide context `s`.
 
-// Basic Animation Example
-#slide(s => ([
-  #let tag = tag.with(s)
-  #tag("header")[= Basic Animation]
-  #tag("item1")[- First item appears]
-  #tag("item2")[- Second item appears]
-  #tag("item3")[- Third item appears]
-  #tag("conclusion")[All items are now visible!]
-  #s.push(once("header"))
-  #s.push(apply("item1"))
-  #s.push(apply("item2"))
-  #s.push(apply("item3"))
-  #s.push(apply("conclusion"))
-], s))
-
-// Apply vs Once Demonstration
-#slide(s => ([
-  #let tag = tag.with(s)
-  #tag("title")[= Apply vs Once]
-  #tag("persistent")[This content stays visible (apply)]
-  #tag("temporary")[This appears only briefly (once)]
-  #tag("next")[Next step - temporary content is gone]
-  #s.push(once("title"))
-  #s.push(apply("persistent"))
-  #s.push(once("temporary"))
-  #s.push(1) // Empty step to show temporary content disappears
-  #s.push(apply("next"))
-], s))
-
-// Content Modification
-#slide(s => ([
-  #let tag = tag.with(s)
-  #tag("title")[= Content Modification]
-  #tag("text", text(size: 28pt)[Hello World])
-  #s.push(once("title"))
-  #s.push(apply("text"))
-  #s.push(apply("text", text.with(fill: blue)))
-  #s.push(apply("text", text.with(fill: red, weight: "bold")))
-  #s.push(apply("text", text.with(fill: green, style: "italic")))
-], s))
-
-// Object System
-#let colored-box = object(
-  rect,
-  normal: case(width: 4cm, height: 3cm, fill: blue, stroke: 2pt),
-  highlighted: case(width: 4cm, height: 3cm, fill: yellow, stroke: 3pt + red),
-  large: case(width: 6cm, height: 4.5cm, fill: blue, stroke: 2pt),
-)
-
-#slide(s => ([
-  #let tag = tag.with(s)
-  #tag("title")[= Object System]
-  #tag("box", colored-box()[Normal Box])
-  #s.push(once("title"))
-  #s.push(apply("box"))
-  #s.push(apply("box", "highlighted"))
-  #s.push(apply("box", "large"))
-], s))
-
-// Complex Animation with Multiple Elements
-#slide(s => ([
-  #let tag = tag.with(s)
-  #tag("title")[= Complex Animation]
-  #tag("diagram", align(center)[
-    #rect(width: 2cm, height: 1cm, fill: blue)[A]
-    #h(1cm)
-    #rect(width: 2cm, height: 1cm, fill: gray)[B]
-    #h(1cm)
-    #rect(width: 2cm, height: 1cm, fill: gray)[C]
-  ])
-  #tag("arrow1", align(center)[→])
-  #tag("arrow2", align(center)[→])
-  #tag("explanation")[Processing step by step]
-  #s.push(once("title"))
-  #s.push(apply("diagram"))
-  #s.push(apply("arrow1"))
-  #s.push(apply("explanation"))
-  #s.push(apply("diagram", it => {
-    show "A": set rect(fill: green)
-    it
-  }))
-  #s.push(apply("arrow2"))
-], s))
-
-// Code Presentation
-#slide(s => ([
-  #let tag = tag.with(s)
-  #tag("title")[= Code Presentation]
-  #tag("code", ```typst
-  #import "@preview/sanor:0.2.1": *
-
-  #slide(s => ([
+#slide(s => (
+  [
     #let tag = tag.with(s)
-    #tag("content")[Hello Sanor!]
-    #s.push(apply("content"))
-  ], s))
-  ```)
-  #s.push(once("title"))
-  #s.push(apply("code"))
-  #s.push(apply("code", it => {
-    show "slide": set text(fill: blue)
-    show "tag": set text(fill: green)
-    it
-  }))
-], s))
+    #set align(center + horizon)
+    #title[Sanor Examples]
+    \@pacaunt
+  ],
+  s,
+))
 
-// Mathematical Content
-#slide(s => ([
-  #let tag = tag.with(s)
-  #tag("title")[= Mathematical Animation]
-  #tag("equation", $ E = m c^2 $)
-  #tag("explanation")[Einstein's famous equation]
-  #s.push(once("title"))
-  #s.push(apply("equation"))
-  #s.push(apply("explanation"))
-  #s.push(apply("equation", it => {
-    show "E": set text(fill: red, weight: "bold")
-    show "m": set text(fill: blue)
-    show "c": set text(fill: green)
-    it
-  }))
-], s))
+/// Slide 2: Basic Pause
+///
+/// Demonstrates the `pause()` function for incremental reveals.
+/// - `pause(s, content)` shows content only when the current step exceeds the
+///   number of previous `pause()` calls.
+/// - `s.push(1)` advances to the next step.
+/// Use `pause()` for simple bullet-point or text reveals that don't need animation.
 
-// State Management with Clear
-#slide(s => ([
-  #let tag = tag.with(s)
-  #tag("title")[= State Management]
-  #tag("content", [This text changes appearance])
-  #s.push(once("title"))
-  #s.push(apply("content"))
-  #s.push(apply("content", text.with(fill: red)))
-  #s.push(apply("content", text.with(fill: blue, size: 32pt)))
-  #s.push(revert("content")) // Back to original
-  #s.push(apply("content", text.with(fill: green, style: "italic")))
-], s))
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Normal Pause
+    #set align(horizon)
+    #pause(s, [- First Item])
+    #s.push(1)
+    #pause(s, [- Second Item])
+    #s.push(1)
+    #pause(s, [- Third Item])
+    #s.push(1)
+  ],
+  s,
+))
 
-// Multiple Simultaneous Changes
-#slide(s => ([controls: (
-    once("title"),
-    apply("diagram"),
-    apply("arrow1"),
-    apply("explanation"),
-    (
-      apply("diagram", it => {
-        show "A": set rect(fill: green)
-        it
-      }),
-      apply("arrow2"),
-    ),
-  )
-  #let tag = tag.with(s)
-  #tag("title")[= Simultaneous Changes]
-  #tag("left", place(left)[Left side content])
-  #tag("right", place(right)[Right side content])
-  #tag("center", place(center)[Center content])
-  #s.push(once("title"))
-  #s.push(apply("center"))
-  #s.push((apply("left"), apply("right"))) // Both at once
-  #s.push((revert("left"), revert("right"))) // Both disappear
-], s))
+/// Slide 3: Tagged Element Examples
+///
+/// Shows the difference between tagging strategies and animation rules:
+/// - `tag("once", content)`: Content appears for a single step, then disappears.
+/// - `tag("apply", content)`: Content appears and remains visible in all subsequent steps.
+/// - `tag("trans", content)`: Content is shown with different styles across steps.
+///
+/// Animation rules:
+/// - `once("name")`: Apply a modification for one step only.
+/// - `apply("name")`: Apply a modification for the current step and all future steps.
 
-// Custom States Example
-#slide(s => ([
-  #let tag = tag.with(s)
-  #tag("title")[= Custom States]
-  #tag("demo", [Demo Text], faded: case(text.with(fill: gray)), highlighted: case(text.with(fill: yellow, weight: "bold")))
-  #s.push(once("title"))
-  #s.push(apply("demo"))
-  #s.push(apply("demo", "faded"))
-  #s.push(apply("demo", "highlighted"))
-  #s.push((apply("demo", "faded"), apply("demo", "highlighted"))) // Multiple states
-], s))
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Tagged Element Examples
+    #set align(center + horizon)
+    #tag("once")[This will appear _once_.] \
+    #tag("apply")[This will appear _all the time_.]
 
-// Handout Mode Example
-#slide(options: (handout: true, handout-index: 3), s => ([
-  #let tag = tag.with(s)
-  #tag("title")[= Handout Mode]
-  #tag("step1")[Step 1: Introduction]
-  #linebreak()
-  #tag("step2")[Step 2: Details]
-  #linebreak()
-  #tag("step3")[Step 3: Conclusion]
-  #s.push(once("title"))
-  #s.push(apply("step1"))
-  #s.push(apply("step2"))
-  #s.push(apply("step3"))
-], s))
+    #tag("trans")[This will transform.]
 
-// Final slide
-#slide(s => ([
-  #let tag = tag.with(s)
-  #tag("thanks")[
-    #text(size: 36pt, weight: "bold")[Thank You!]
-    #v(1cm)
-    #text(size: 24pt)[For exploring Sanor examples]
-    #v(2cm)
-    #text(size: 18pt)[Visit the documentation for more features]
-  ]
-  #s.push(apply("thanks"))
-], s))
+    #s.push(once("once"))
+    #s.push(apply("apply"))
+    #s.push(apply("trans"))
+    #s.push(apply("trans", text(fill: yellow, "Transformed!")))
+  ],
+  s,
+))
+
+/// Slide 4: Math Examples
+///
+/// Demonstrates using tagged elements in mathematical expressions.
+/// - Tag specific parts of math content (here: `tag("m", ...)` for the term "x + 2")
+/// - Apply different transformations to the tagged term across steps:
+///   - Show it normally
+///   - Color it red
+///   - Use `math.cancel` to visually cross it out
+///   - Hide it completely with `it => none`
+/// - Use `s.push(-1)` to adjust positioning and `s.push(1)` to advance steps.
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Math Examples
+    Simplify
+    $
+      (x(x + 1)tag("m", (x + 2)))/(2 tag("m", (x + 2)))
+    $
+    #s.push(apply("m")) // Show the `m`.
+    #s.push(apply("m", text.with(fill: red))) // Make it red.
+    #s.push(apply("m", math.cancel)) // Cancel it.
+    #s.push(apply("m", it => none)) // Remove it.
+    #s.push(-1) // to move the `pause` up
+    #pause(s)[End.]
+    #s.push(1) // to update the last `pause`.
+  ],
+  s,
+))
+
+/// Slide 5: Code Example
+///
+/// Integrates Sanor animations with the `zebraw` code highlighting package.
+/// - Tag code blocks for step-by-step highlighting or modification
+/// - First step: Show the base code
+/// - Second step: Rerender with `zebraw` and custom highlighting applied to specific lines
+/// - This technique works with any Typst package for syntax highlighting or rendering.
+
+#slide(s => (
+  [
+    #import "@preview/zebraw:0.6.3": zebraw
+    #let tag = tag.with(s)
+    #let zebraw = zebraw.with(
+      background-color: luma(30),
+      lang: false,
+      highlight-color: white.transparentize(90%),
+      comment-color: white.transparentize(90%),
+      comment-font-args: (font: "Libertinus serif"),
+    )
+    = Code Example
+    Integration with `zebraw`.
+    #set align(horizon)
+
+    #show: zebraw
+
+    #tag("snippet")[```typst
+    #slide(s => ([
+      #let tag = tag.with(s)
+      // Your Content Goes Here
+    ],s))
+    ```]
+
+    #s.push(apply("snippet"))
+    #s.push(apply("snippet", it => {
+      zebraw(it, highlight-lines: (
+        "2": [
+          Don't forget this line!
+        ],
+      ))
+    }))
+
+  ],
+  s,
+))
+
+/// Slide 6: Simultaneous Animation
+///
+/// Shows how to animate multiple elements at the same time:
+/// - Wrap multiple rules in a tuple (or array) when calling `s.push()`
+/// - Step 1: Show both Jack and Julie labels
+/// - Step 2: Highlight Jack and show his description
+/// - Step 3: Highlight Julie and show her description
+/// This is useful for coordinating animations across different elements on a slide.
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Simultaneous Animation
+    #set align(center + horizon)
+
+    #grid(columns: (1fr,) * 2, align: horizon)[
+      #tag("Jack")[Jack]
+
+      #tag("jtext")[Jack was a teacher.]
+    ][
+      #tag("Julie")[Julie]
+
+      #tag("ltext")[Julie was a student.]
+    ]
+
+    #s.push((
+      apply("Jack"),
+      apply("Julie"),
+    ))
+
+    #s.push((
+      once("Jack", circle.with(fill: blue)),
+      once("jtext"),
+    ))
+
+    #s.push((
+      once("Julie", circle.with(fill: fuchsia)),
+      once("ltext"),
+    ))
+  ],
+  s,
+))
+
+/// Slide 7: Object Manipulation
+///
+/// Introduces the `object()` function for creating reusable components with state:
+/// - `object(func, hidden: hide)` creates a component that can be instantiated multiple times
+/// - Apply modifications cumulatively to the same object across steps
+/// - `outset: 1em` is applied as a direct property modification
+/// - Objects combine all active transformations from previous steps (unless using `revert()`)
+/// Useful for building complex interactive diagrams or UI mockups.
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Object Manipulation
+    Elements defined by `object` declaration can be modified.
+    #set align(horizon)
+    #let myrect = object(rect.with(stroke: yellow), hidden: hide)
+
+    #tag("base", myrect[Hello])
+    #s.push(apply("base", align.with(center)))
+    #s.push(apply("base", outset: 1em))
+    #s.push(once("base", text.with(fill: yellow)))
+    #s.push(apply("base", radius: 2em))
+  ],
+  s,
+))
+
+/// Slide 8: Custom Defined Cases
+///
+/// Shows how to define named cases for an object, enabling semantic animation rules:
+/// - `case(property: value)` creates a case with styling applied
+/// - `case(function)` creates a case that wraps content with a function
+/// - Reference cases by name in `apply()` / `once()` instead of repeating properties
+/// This makes complex animations more readable and reusable. Named cases can include
+/// both styling properties and wrapper functions.
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Custom Defined Cases
+    *Cases* are a short hand for defining actions that will act on an element.
+
+    #let mytext = object(
+      text,
+      redden: case(fill: red),
+      grayed: case(fill: gray),
+      rotated: case(rotate.with(30deg)),
+    )
+
+    #show: block.with(height: 1fr, width: 100%)
+    #tag("elem", mytext[This is a text.])
+    #s.push(apply("elem", place.with(center + horizon)))
+    #s.push(once("elem", "redden"))
+    #s.push(once("elem", "grayed"))
+    #s.push(once("elem", "rotated", place.with(center + horizon)))
+  ],
+  s,
+))
+
+/// Slide 9: Mixing Animations and Pause
+///
+/// Demonstrates combining multiple features in a single slide:
+/// - Define custom cases at the slide level with `defined-cases:` option
+/// - Mix `pause()` for narrative flow with tagged animations for interactivity
+/// - Use tuples in `s.push()` for simultaneous multi-element animations
+/// - Coordinate text reveals and element highlighting across presentation steps
+/// - This slide shows a "choose your path" interaction pattern with visual feedback.
+
+#slide(
+  defined-cases: (
+    "highlighted": case(block.with(outset: 0.5em, stroke: yellow)),
+    "alert": case(text.with(fill: yellow)),
+  ),
+  s => (
+    [
+      #let tag = tag.with(s)
+      = Mixing animations and pause
+
+      #pause(s, [Hello, there!])
+      #s.push(1)
+
+      #pause(s, [Here are some switches you can choose.])
+      #s.push(1)
+
+      #set align(center + horizon)
+
+      #let myrect = object(rect.with(height: 2cm, width: 2cm))
+
+      #grid(columns: (1fr,) * 2, align: top)[
+        #tag("green", myrect(fill: green))
+        #tag("gtext", [If you press the green one, you will survive.])
+      ][
+        #tag("red", myrect(fill: red))
+        #tag("rtext", [If you press the red one, you will get sick!])
+      ]
+
+      #s.push((
+        apply("green"),
+        apply("red"),
+      ))
+      #s.push((
+        once("gtext", "alert"),
+        once("green", "highlighted"),
+      ))
+      #s.push((
+        once("rtext", "alert"),
+        once("red", "highlighted"),
+      ))
+
+      #pause(s, move(dy: -2em)[What did you choose?])
+      #s.push(1)
+    ],
+    s,
+  ),
+)

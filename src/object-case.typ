@@ -68,7 +68,7 @@
 #let resolve-case(maybe-case, defined: (:)) = {
   let case = make-case(maybe-case)
   if type(case) == str {
-    return defined.at(maybe-case)
+    return defined.at(maybe-case, default: case)
   }
   if class-of(case) == "modifier" {
     return case
@@ -80,7 +80,14 @@
 /// `defined-cases` means  *named* cases.
 #let _object(func, hidden: case(hide), defined-cases) = {
   // define the hidden and base cases
-  defined-cases.hidden = resolve-case(hidden, defined: defined-cases)
+  // defined-cases.hidden = resolve-case(hidden, defined: defined-cases)
+  hidden = make-case(hidden)
+  if class-of(hidden) == str {
+    defined-cases.hidden = resolve-case(hidden, defined: defined-cases)
+  } else {
+    defined-cases.hidden = hidden
+  }
+
   defined-cases.base = Case((:), (it => it,))
 
   Object(
@@ -138,16 +145,18 @@
 /// 3. The canvas stage: may not be defined cases.
 /// The `object` itself will combine all of the cases into one.
 #let make-object(maybe-obj, hidden: case(hide), ..defined-cases) = {
+  hidden = make-case(hidden)
   if type(maybe-obj) == function {
     let obj = maybe-obj(debug: true)
 
     if class-of(obj) == "object" {
       // add the other predefined-cases into the object
-      obj.cases = utils.merge-dicts(base: obj.cases, defined-cases.named())
+      defined-cases = defined-cases.named() + (hidden: hidden)
+      obj.cases = utils.merge-dicts(base: obj.cases, defined-cases)
 
       return _make-object(obj)
     }
   }
 
-  object(() => maybe-obj, hidden: hidden, ..defined-cases)()
+  object(() => maybe-obj, ..defined-cases, hidden: hidden)()
 }

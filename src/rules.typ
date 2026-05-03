@@ -3,7 +3,7 @@
 
 /// The `cases` are an array of cases.
 /// `Applier` tells what kind of rule we are dealing with.
-/// - kind -> "apply" | "once", whether the action happens all after or just once.
+/// - kind -> "apply" | "once" | "clear", whether the action happens all after, just once, or clear all animations.
 /// - inherit -> bool : whether to combine with previous active cases,
 /// - active -> true | false | auto:  status to set the element to.
 #let Applier(
@@ -32,12 +32,6 @@
   Rule(name, applier)
 }
 
-#let apply(name, ..cases, inherit: true) = rule(
-  name,
-  default: "base",
-  make-applier("apply", ..cases, inherit: inherit, active: true),
-)
-
 /// Applies cases to tagged content for the current and all subsequent steps.
 ///
 /// This function creates a rule that applies the specified cases to content
@@ -59,12 +53,6 @@
   name,
   default: "base",
   make-applier("apply", ..cases, inherit: inherit, active: true),
-)
-
-#let once(name, ..cases, inherit: true) = rule(
-  name,
-  default: "base",
-  make-applier("once", ..cases, inherit: inherit, active: true),
 )
 
 /// Applies cases to tagged content for only one step.
@@ -91,12 +79,6 @@
   make-applier("once", ..cases, inherit: inherit, active: true),
 )
 
-#let cover(name, ..cases) = rule(
-  name,
-  default: "hidden",
-  make-applier("apply", ..cases, inherit: false, active: false),
-)
-
 /// Covers tagged content by applying cases and preventing inheritance.
 ///
 /// This function hides content by applying the specified cases without
@@ -117,12 +99,6 @@
   name,
   default: "hidden",
   make-applier("apply", ..cases, inherit: false, active: false),
-)
-
-#let revert(name, ..cases) = rule(
-  name,
-  default: "base",
-  make-applier("apply", ..cases, inherit: false, active: auto),
 )
 
 /// Reverts tagged content to specified cases without inheritance.
@@ -148,8 +124,6 @@
   make-applier("apply", ..cases, inherit: false, active: auto),
 )
 
-#let force(name, ..cases) = apply(name, ..cases, inherit: false)
-
 /// Forces application of cases without inheritance.
 ///
 /// This is equivalent to `apply(name, ..cases, inherit: false)`.
@@ -166,3 +140,13 @@
 /// ], s))
 /// ```
 #let force(name, ..cases) = apply(name, ..cases, inherit: false)
+
+/// Clear the previous animation sequence on an element.
+/// 
+/// - name (str): The tag name of the element to clear.
+/// -> rule
+#let clear(name) = rule(
+  name,
+  default: "base",
+  make-applier("clear", inherit: false, active: auto)
+)
