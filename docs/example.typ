@@ -57,7 +57,7 @@
 #slide(s => (
   [
     #let tag = tag.with(s)
-    = Math Examples
+    = Math Example
     Simplify
     $
       (x(x + 1)tag("m", (x + 2)))/(2 tag("m", (x + 2)))
