@@ -4,167 +4,81 @@
 #set text(fill: white, size: 25pt)
 
 
-#slide(
-  s => {
-    show regex("\{\{.*\}\}"): it => {
-      [#it.text.trim(regex("\{|\}"))<label1>]
-    }
-    let tag = tag.with(s)
-    tag("text1")[Hello]
-    tag("text2")[How Equation of State Works?]
-    tag("text3")[
-      Here is an example:
-      #tag("eq1", $ P V = n R T $)
-      #tag("des1")[
-        *Equation of state* is any equation that relates $P$, $V$, and $T$.
-      ]
-    ]
+#slide(s => (
+  [
+    #let tag = tag.with(s)
 
-    tag("text4")[
-      Let's see some code example.
+    = Hello, from Sanor
+    #tag("Hello")[This is a text.]
+    #s.push(apply("Hello", place.with(center + horizon)))
+    #s.push(once("Hello", text.with(fill: red)))
 
-
-      #tag("code1", {
-        (
-          ```typst
-          Hello Typst
-          Well {{Done}}
-          ```
-        )
-      })
-    ]
-  },
-  controls: (
-    once("text1", place.with(center + horizon)),
-    once("text2", place.with(center + horizon)),
-    apply("text3", place.with(center + horizon)),
-    apply("eq1"),
-    apply("des1"),
-    (
-      once("eq1", it => {
-        show regex("P|V|T"): set text(fill: yellow)
-        it
-      }),
-      once("des1", it => {
-        show $a$.func(): s => {
-          show regex("P|V|T"): set text(fill: yellow)
-          s
-        }
-        it
-      }),
-    ),
-    (
-      clear("text3"),
-      apply("text4", place.with(center + horizon)),
-    ),
-    apply("code1"),
-    apply("code1", it => {
-      show <label1>: set text(fill: green)
-      it
-    }),
-  ),
-  hider: it => none,
-)
-
-
-#set page(margin: 0pt)
-#import "@preview/cetz:0.4.2": canvas, draw
-#let transformer(body, ..funcs) = {
-  funcs.pos().fold(body, (acc, f) => f(acc))
-}
-#let transformer = object(transformer, hidden: it => none)
-#let (slide,) = set-option(hider: it => none)
-#slide(
-  s => {
-    let tag = tag.with(s)
-    let cobj(name, func, ..args) = {
-      tag(name, func(name: name, ..args))
-    }
-    set align(center + horizon)
-    layout(size => {
-      canvas(length: 10% * size.height, {
-        import draw: *
-        stroke(white)
-        tag("all", transformer({
-          tag("coords", grid(
-            (-5, -5),
-            (5, 5),
-            stroke: luma(80),
-          ))
-          tag("axes", {
-            set-style(mark: (width: .1, length: .2, fill: white))
-            line((-5, 0), (5, 0), mark: (symbol: ">"), name: "x")
-            line((0, -5), (0, 5), mark: (symbol: ">"), name: "y")
-            floating({
-              content("x.end", $x$, anchor: "west", padding: .2)
-              content("y.97%", $y$, anchor: "west", padding: .2)
-            })
-          })
-        }))
-      })
-    })
-  },
-  controls: (
-    (
-      apply("all"),
-      apply("coords"),
-    ),
-    apply("axes"),
-    apply("all", it => {
-      draw.rotate(-30deg)
-      it
-    }),
-    apply("all", it => {
-      draw.scale(x: 150%)
-      it
-    }),
-    revert("all"),
-  ),
-)
-
-
-#slide(s => {
-  let tag = tag.with(s)
-  set align(center + horizon)
-  tag("t1")[
-    #tag("doc")[
-      #block[NOTE]
-    ]
-    #tag("report")[
-      #block[REPORT PIC]
-    ]
-    You can use Typst with #box(width: 3cm)[
-      #set align(left)
-      #set text(fill: yellow)
-      #tag("doc")[notes]
-      #tag("report")[reports]
-      #tag("thesis")[theses]
-      #tag("slides")[slides]
-    ]
-  ]
-}, hider: it => none, controls: (
-  apply("t1"),
-  once("doc"),
-  once("report"),
-  once("thesis"),
-  once("slides")
+  ],
+  s,
 ))
 
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Integration with `pause`
+    #let myrect = object(rect, base: case(), yellow: case(fill: yellow))
 
-#let my-box = object(
-  rect,
-  normal: (fill: blue),
-  highlighted: (fill: yellow),
-  hidden: (stroke: none, fill: none)
-)
+    This is the first text. #tag("yrect", myrect[Hi])
+
+    #pause(s)[Then this came later]
+    #s.push(1)
+
+    #pause(s)[Like This]
+    #s.push(1)
+
+    #s.push(apply("yrect", "yellow"))
+  ],
+  s,
+))
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    #let c1 = object(circle, hidden: hide)
+    #tag("c1", c1())
+
+    #s.push((apply("c1"), once("normal")))
+    #s.push((apply("c1", fill: red), once("red")))
+    #s.push((apply("c1", radius: 3cm), once("grow")))
+    #s.push((clear("c1"), once("normal")))  // Reset to base
+    #s.push((apply("c1"), once("back")))    // Apply will not preserve previous transforms
+  ],
+  s,
+))
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    #let c1 = object(circle, hidden: hide)
+    #tag("c1", c1())
+
+    #s.push((apply("c1"), once("normal")))
+    #s.push((apply("c1", fill: red), once("red")))
+    #s.push((apply("c1", radius: 3cm), once("grow")))
+    #s.push((revert("c1"), once("normal")))  // Reset to base
+    #s.push((apply("c1"), once("back")))     // Apply will show as if previous animations weren't applied, but history is preserved
+  ],
+  s,
+))
 
 #slide(
-  s => {
-    let tag = tag.with(s)
-    tag("box", my-box[Normal Box])
-  },
-  controls: (
-    apply("box"),
-    apply("box", "highlighted"),
+  defined-cases: (
+    "error": case(text.with(fill: red, weight: "bold")),
+    "success": case(text.with(fill: green, weight: "bold")),
+    "highlight": case(block.with(fill: yellow.transparentize(80%))),
   ),
+  s => ([
+    #let tag = tag.with(s)
+    
+    #tag("msg1")[Operation completed]
+    #tag("msg2")[Check the results]
+    
+    #s.push(apply("msg1", "success"))
+    #s.push(apply("msg2", "highlight"))
+  ], s),
 )

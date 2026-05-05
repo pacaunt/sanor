@@ -1,4 +1,5 @@
 #import "../src/sanor.typ": *
+#import "../src/rules.typ": *
 
 // #let mytext = make-object(text, normal: (), hidden: hide, transparent: (fill: black.transparentize(80%)))
 

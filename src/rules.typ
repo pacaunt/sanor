@@ -1,86 +1,152 @@
-#import "object.typ": make-object,  object, update-modifier,  call-object
+#import "utils.typ" as utils: strfmt
+#import "object-case.typ": *
 
-#let tag(
-  // the context of animation
-  // -> info
-  s,
-  // identifier
-  // -> str
-  name,
-  // the body
-  // -> any | object
-  body,
-  // hiding function or methods
-  // -> any
-  hider: auto,
-  // the ways to manipulate the body.
-  ..cases,
-) = {
-  let info = s.tag-info
-  let default-case = if info.is-shown { "__base__" } else { "hidden" }
-  let current-state = info.tags.at(name, default: (case: default-case, modifier: (:)))
-  let defined-case = info.defined-states
+/// The `cases` are an array of cases.
+/// `Applier` tells what kind of rule we are dealing with.
+/// - kind -> "apply" | "once" | "clear", whether the action happens all after, just once, or clear all animations.
+/// - inherit -> bool : whether to combine with previous active cases,
+/// - active -> true | false | auto:  status to set the element to.
+#let Applier(
+  kind,
+  cases,
+  inherit: true,
+  active: auto,
+) = class(
+  "applier",
+  kind: kind,
+  cases: cases,
+  inherit: inherit,
+  active: active,
+)
 
-  if hider == auto { hider = info.hider }
-  // make all body be an object
-  if type(body) != function {
-    body = object(() => body, hidden: hider, ..defined-case, ..cases)()
-  }
-  body = update-modifier(body, ..defined-case)
-  body = update-modifier(body, ..((current-state.case): current-state.modifier))
-  return call-object(body, current-state.case)
+#let Rule(name, applier) = class("rule", name: name, applier: applier)
+
+#let make-applier(kind, ..maybe-cases, inherit: true, active: auto) = {
+  let kwarg-cases = (make-case(maybe-cases.named()),)
+  let arg-cases = maybe-cases.pos().map(make-case)
+  Applier(kind, kwarg-cases + arg-cases, inherit: inherit, active: active)
 }
 
-// There are 3 types of state:
-// 1. once
-// 2. start-apply (apply)
-// 3. stop-apply (clear)
-// A state is in the form:
-// (
-//   type: "once",
-//   name: {name},
-//   case: {case},
-//   modifier: {modifier},
-// )
-#let _apply(name, ..modifier-cases) = kind => {
-  let styles-modifier = modifier-cases.named()
-  let modifier-cases = modifier-cases.pos()
-  let case = ()
-  let modifier = ()
-  for mc in modifier-cases {
-    if type(mc) == str { case.push(mc) } else { modifier.push(mc) }
-  }
-  if modifier == () { modifier = styles-modifier }
-
-  return (
-    type: kind,
-    name: name,
-    case: if case.len() == 0 { "__applied__" } else { case.remove(0) },
-    modifier: modifier,
-  )
+#let rule(name, applier, default: "base") = {
+  if applier.cases == () { applier.cases = (default,) }
+  Rule(name, applier)
 }
 
-/// Apply the modifier to the content with the given name. If the content is not defined, it will be treated as if it is in the base state. If the content is already applied, the new modifier will be piped to the old one.
-#let apply(
+/// Applies cases to tagged content for the current and all subsequent steps.
+///
+/// This function creates a rule that applies the specified cases to content
+/// tagged with the given name, and keeps those cases active in future steps.
+///
+/// - name (str): The tag name to apply to.
+/// - ..cases (any): Cases or modifiers to apply.
+/// - inherit (bool): Whether to combine with existing active cases.
+/// -> rule
+///
+/// #example ```typst
+/// #slide(s => ([
+///   #let tag = tag.with(s)
+///   #tag("text")[Hello]
+///   #s.push(apply("text", text.with(fill: red)))
+/// ], s))
+/// ```
+#let apply(name, ..cases, inherit: true) = rule(
   name,
-  ..modifier-cases,
-) = _apply(name, ..modifier-cases)("apply")
+  default: "base",
+  make-applier("apply", ..cases, inherit: inherit, active: true),
+)
 
-/// Apply the modifier only once. If the content is not defined, it will be treated as if it is in the base state. If the content is already applied, the new modifier will be piped to the old one. After the modifier is applied, it will be removed from the context.
-#let once(
+/// Applies cases to tagged content for only one step.
+///
+/// This function creates a rule that applies the specified cases to content
+/// tagged with the given name, but only for the current step.
+///
+/// - name (str): The tag name to apply to.
+/// - ..cases (any): Cases or modifiers to apply.
+/// - inherit (bool): Whether to combine with existing active cases.
+/// -> rule
+///
+/// #example ```typst
+/// #slide(s => ([
+///   #let tag = tag.with(s)
+///   #tag("text")[Hello]
+///   #s.push(once("text", text.with(fill: red)))
+///   #s.push(1)  // Next step, red is gone
+/// ], s))
+/// ```
+#let once(name, ..cases, inherit: true) = rule(
   name,
-  ..modifier-cases,
-) = _apply(name, ..modifier-cases)("once")
+  default: "base",
+  make-applier("once", ..cases, inherit: inherit, active: true),
+)
 
-/// Clear all modifiers of the content with the given name. If the content is not defined, this command will do nothing.
-#let clear(name) = {
-  return (
-    type: "clear",
-    name: name,
-    case: "__base__",
-    modifier: (:),
-  )
-}
+/// Covers tagged content by applying cases and preventing inheritance.
+///
+/// This function hides content by applying the specified cases without
+/// inheriting previous modifications.
+///
+/// - name (str): The tag name to cover.
+/// - ..cases (any): Cases or modifiers to apply.
+/// -> rule
+///
+/// #example ```typst
+/// #slide(s => ([
+///   #let tag = tag.with(s)
+///   #tag("text")[Hello]
+///   #s.push(cover("text"))  // Hides the text
+/// ], s))
+/// ```
+#let cover(name, ..cases) = rule(
+  name,
+  default: "hidden",
+  make-applier("apply", ..cases, inherit: false, active: false),
+)
 
-#let cover(name) = apply(name, "hidden")
-#let revert(name) = apply(name, "__base__")
+/// Reverts tagged content to specified cases without inheritance.
+///
+/// This function applies the specified cases to content without combining
+/// with previous modifications.
+///
+/// - name (str): The tag name to revert.
+/// - ..cases (any): Cases or modifiers to apply.
+/// -> rule
+///
+/// #example ```typst
+/// #slide(s => ([
+///   #let tag = tag.with(s)
+///   #tag("text")[Hello]
+///   #s.push(apply("text", text.with(fill: red)))
+///   #s.push(revert("text", text.with(fill: blue)))  // Only blue, not red+blue
+/// ], s))
+/// ```
+#let revert(name, ..cases) = rule(
+  name,
+  default: "base",
+  make-applier("apply", ..cases, inherit: false, active: auto),
+)
+
+/// Forces application of cases without inheritance.
+///
+/// This is equivalent to `apply(name, ..cases, inherit: false)`.
+///
+/// - name (str): The tag name to force.
+/// - ..cases (any): Cases or modifiers to apply.
+/// -> rule
+///
+/// #example ```typst
+/// #slide(s => ([
+///   #let tag = tag.with(s)
+///   #tag("text")[Hello]
+///   #s.push(force("text", text.with(fill: red)))
+/// ], s))
+/// ```
+#let force(name, ..cases) = apply(name, ..cases, inherit: false)
+
+/// Clear the previous animation sequence on an element.
+/// 
+/// - name (str): The tag name of the element to clear.
+/// -> rule
+#let clear(name) = rule(
+  name,
+  default: "base",
+  make-applier("clear", inherit: false, active: auto)
+)
