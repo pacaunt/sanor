@@ -1,9 +1,37 @@
 # Sanor
 
-| ![example for multiple case display](https://github.com/pacaunt/sanor/blob/96892e3326f76f6f9653e02e96d92419acc0d523/docs/gif/example-case.gif) | ![math animation example](https://github.com/pacaunt/sanor/blob/96892e3326f76f6f9653e02e96d92419acc0d523/docs/gif/example-math.gif) |
-| ![Synchronize animation between elements](https://github.com/pacaunt/sanor/blob/96892e3326f76f6f9653e02e96d92419acc0d523/docs/gif/example-sync.gif) | ![Code animation with comment insertion](https://github.com/pacaunt/sanor/blob/96892e3326f76f6f9653e02e96d92419acc0d523/docs/gif/example-code.gif) |
-
 Fast, small, but powerful presentation framework in Typst.
+
+## Examples
+Click on the image to jump to the source code.
+<table>
+  <tr>
+    <td><a href="gallery/example-case.typ"><img src="gallery/example-case.gif" width="300" alt="example for multiple case display"></a></td>
+    <td><a href="gallery/example-math.typ"><img src="gallery/example-math.gif" width="300" alt="math animation example"></a></td>
+  </tr>
+  <tr>
+    <td>
+      Multiple Case Display
+    <td/>
+    <td>
+      Math Animation
+    <td/>
+  <tr/>
+  <tr>
+    <td><a href="gallery/example-sync.typ"><img src="gallery/example-sync.gif" width="300" alt="Synchronize animation between elements"></a></td>
+    <td><a href="gallery/example-code.typ"><img src="gallery/example-code.gif" width="300" alt="Code animation with comment insertion"></a></td>
+  </tr>
+  <tr>
+    <td>
+      Multiple Case Display
+    <td/>
+    <td>
+      Math Animation
+    <td/>
+  <tr/>
+</table>
+
+
 
 Sanor provides a framework for creating highly animated PDF presentations by step-by-step reveal controls over each element in a Typst document. 
 
