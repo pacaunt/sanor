@@ -1,25 +1,13 @@
-/// Sanor Examples
-///
-/// This file demonstrates the key features of the Sanor presentation framework:
-/// - Pause: Reveal content step by step with manual control
-/// - Tag + Apply/Once: Mark and animate specific elements
-/// - Objects: Create reusable components with multiple states
-/// - Cases: Define named transformations for flexible styling
-/// - Simultaneous actions: Animate multiple elements at once
-///
-/// Each slide is a standalone example showing one or more features.
-
 #import "../src/lib.typ": *
 
 // Set up presentation format.
 #set page(paper: "presentation-16-9", fill: luma(20))
 #set text(size: 25pt, fill: white)
 
-/// Slide 1: Title Slide
-///
-/// Basic slide setup with title and author. This demonstrates the minimal
-/// structure needed for a Sanor slide: wrap content in a function that receives
-/// the slide context `s`.
+// To create a handout, uncomment the following line.
+// The `handout-index` is the index of the frame that will be shown in the handout.
+// 
+// #let (slide,) = set-option(handout: true, handout-index: auto)
 
 #slide(s => (
   [
@@ -31,14 +19,6 @@
   s,
 ))
 
-/// Slide 2: Basic Pause
-///
-/// Demonstrates the `pause()` function for incremental reveals.
-/// - `pause(s, content)` shows content only when the current step exceeds the
-///   number of previous `pause()` calls.
-/// - `s.push(1)` advances to the next step.
-/// Use `pause()` for simple bullet-point or text reveals that don't need animation.
-
 #slide(s => (
   [
     #let tag = tag.with(s)
@@ -46,24 +26,15 @@
     #set align(horizon)
     #pause(s, [- First Item])
     #s.push(1)
+
     #pause(s, [- Second Item])
     #s.push(1)
+
     #pause(s, [- Third Item])
     #s.push(1)
   ],
   s,
 ))
-
-/// Slide 3: Tagged Element Examples
-///
-/// Shows the difference between tagging strategies and animation rules:
-/// - `tag("once", content)`: Content appears for a single step, then disappears.
-/// - `tag("apply", content)`: Content appears and remains visible in all subsequent steps.
-/// - `tag("trans", content)`: Content is shown with different styles across steps.
-///
-/// Animation rules:
-/// - `once("name")`: Apply a modification for one step only.
-/// - `apply("name")`: Apply a modification for the current step and all future steps.
 
 #slide(s => (
   [
@@ -83,17 +54,6 @@
   s,
 ))
 
-/// Slide 4: Math Examples
-///
-/// Demonstrates using tagged elements in mathematical expressions.
-/// - Tag specific parts of math content (here: `tag("m", ...)` for the term "x + 2")
-/// - Apply different transformations to the tagged term across steps:
-///   - Show it normally
-///   - Color it red
-///   - Use `math.cancel` to visually cross it out
-///   - Hide it completely with `it => none`
-/// - Use `s.push(-1)` to adjust positioning and `s.push(1)` to advance steps.
-
 #slide(s => (
   [
     #let tag = tag.with(s)
@@ -112,14 +72,6 @@
   ],
   s,
 ))
-
-/// Slide 5: Code Example
-///
-/// Integrates Sanor animations with the `zebraw` code highlighting package.
-/// - Tag code blocks for step-by-step highlighting or modification
-/// - First step: Show the base code
-/// - Second step: Rerender with `zebraw` and custom highlighting applied to specific lines
-/// - This technique works with any Typst package for syntax highlighting or rendering.
 
 #slide(s => (
   [
@@ -158,15 +110,6 @@
   s,
 ))
 
-/// Slide 6: Simultaneous Animation
-///
-/// Shows how to animate multiple elements at the same time:
-/// - Wrap multiple rules in a tuple (or array) when calling `s.push()`
-/// - Step 1: Show both Jack and Julie labels
-/// - Step 2: Highlight Jack and show his description
-/// - Step 3: Highlight Julie and show her description
-/// This is useful for coordinating animations across different elements on a slide.
-
 #slide(s => (
   [
     #let tag = tag.with(s)
@@ -201,15 +144,6 @@
   s,
 ))
 
-/// Slide 7: Object Manipulation
-///
-/// Introduces the `object()` function for creating reusable components with state:
-/// - `object(func, hidden: hide)` creates a component that can be instantiated multiple times
-/// - Apply modifications cumulatively to the same object across steps
-/// - `outset: 1em` is applied as a direct property modification
-/// - Objects combine all active transformations from previous steps (unless using `revert()`)
-/// Useful for building complex interactive diagrams or UI mockups.
-
 #slide(s => (
   [
     #let tag = tag.with(s)
@@ -227,14 +161,77 @@
   s,
 ))
 
-/// Slide 8: Custom Defined Cases
-///
-/// Shows how to define named cases for an object, enabling semantic animation rules:
-/// - `case(property: value)` creates a case with styling applied
-/// - `case(function)` creates a case that wraps content with a function
-/// - Reference cases by name in `apply()` / `once()` instead of repeating properties
-/// This makes complex animations more readable and reusable. Named cases can include
-/// both styling properties and wrapper functions.
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Revert Animation
+    Example with CeTZ integration. \
+  
+    #let tag = tag.with(hidden: it => none)
+    #set align(center)
+    #tag("normal", "A Normal Circle")
+    #tag("red","Fill it red.")
+    #tag("grow", "Make it big.")
+    #tag("back", "It is back!")
+    #set align(horizon)
+
+    #import "@preview/cetz:0.5.0"
+    #cetz.canvas({
+      import cetz.draw: * 
+      set-style(stroke: white)
+      // change the hiding method used by the `tag` function. 
+      let tag = tag.with(hidden: hide.with(bounds: true))
+
+      let c1 = object(circle, hidden: hide)
+      tag("c1", c1((0, 0)))
+
+      s.push((apply("c1"), once("normal")))
+      s.push((apply("c1", fill: red), once("red")))
+      s.push((apply("c1", radius: 3), once("grow")))
+      // `revert` can revert the object to the base case without losing the previous animation styles.
+      s.push((revert("c1"), once("normal")))
+      // This `apply` still shows the circle as if the `revert` hasn't been called.
+      s.push((apply("c1"), once("back")))
+    })
+  ],
+  s
+))
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Clear animation of an object
+    Example with CeTZ integration. \
+  
+    #let tag = tag.with(hidden: it => none)
+    #set align(center)
+    #tag("normal", "A Normal Circle")
+    #tag("red","Fill it red.")
+    #tag("grow", "Make it big.")
+    #tag("back", "It did not come back...")
+    #set align(horizon)
+
+    #import "@preview/cetz:0.5.0"
+    #cetz.canvas({
+      import cetz.draw: * 
+      set-style(stroke: white)
+      // change the hiding method used by the `tag` function. 
+      let tag = tag.with(hidden: hide.with(bounds: true))
+
+      let c1 = object(circle, hidden: hide)
+      tag("c1", c1((0, 0)))
+
+      s.push((apply("c1"), once("normal")))
+      s.push((apply("c1", fill: red), once("red")))
+      s.push((apply("c1", radius: 3), once("grow")))
+      // `clear` can revert the object to the base case but the previous animation styles are lost.
+      s.push((clear("c1"), once("normal")))
+      // This `apply` will show as if the previous animation hasn't been applied.
+      s.push((apply("c1"), once("back")))
+    })
+  ],
+  s
+))
 
 #slide(s => (
   [
@@ -259,15 +256,6 @@
   s,
 ))
 
-/// Slide 9: Mixing Animations and Pause
-///
-/// Demonstrates combining multiple features in a single slide:
-/// - Define custom cases at the slide level with `defined-cases:` option
-/// - Mix `pause()` for narrative flow with tagged animations for interactivity
-/// - Use tuples in `s.push()` for simultaneous multi-element animations
-/// - Coordinate text reveals and element highlighting across presentation steps
-/// - This slide shows a "choose your path" interaction pattern with visual feedback.
-
 #slide(
   defined-cases: (
     "highlighted": case(block.with(outset: 0.5em, stroke: yellow)),
@@ -290,10 +278,10 @@
 
       #grid(columns: (1fr,) * 2, align: top)[
         #tag("green", myrect(fill: green))
-        #tag("gtext", [If you press the green one, you will survive.])
+        #tag("gtext", [If you press the green one, nothing will happen.])
       ][
         #tag("red", myrect(fill: red))
-        #tag("rtext", [If you press the red one, you will get sick!])
+        #tag("rtext", [If you press the red one, also nothing...])
       ]
 
       #s.push((
@@ -315,3 +303,13 @@
     s,
   ),
 )
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    #set align(center + horizon)
+    = Thanks 
+    \@pacaunt
+  ],
+  s
+))

@@ -2,18 +2,17 @@
 
 Fast, small, but powerful presentation framework in Typst.
 
-Sanor is a Typst package that provides utilities for creating animated presentations with incremental content reveals, state management, and flexible slide controls.
+Sanor provides a framework for creating highly animated PDF presentations by step-by-step reveal controls over each element in a Typst document. 
 
 ## Features
 
 - **Step-by-Step Reveals**: Control content visibility with `pause()` for narrative flow or tagged animations for interactive elements
 - **Content Tagging System**: Use `tag()` to mark elements that can be animated, revealed, or transformed
-- **Animation Rules**: Apply transformations with `apply()` (persistent), `once()` (single step), `cover()` (hide), `revert()` (reset), or `clear()` (remove prior modifiers)
+- **Animation Rules**: Apply transformations to the elements with `apply()` (persistent), `once()` (single step), `cover()` (hide), `revert()` (reset), or `clear()` (remove prior modifiers)
 - **Reusable Objects**: Create components with `object()` that can have multiple visual states via named cases
 - **Cases System**: Define semantic transformations with `case()` that can be referenced by name instead of repeating properties
-- **Simultaneous Actions**: Coordinate animations across multiple elements by grouping rules in tuples
+- **Simultaneous Actions**: Coordinate animations across multiple elements by grouping rules in an array
 - **Handout Support**: Generate static handouts from animated presentations with `set-option(handout: true)`
-- **Flexible State Management**: Maintain complex presentation state across slides with full control over animation sequences
 
 ## Core Concepts
 
@@ -24,6 +23,7 @@ A **tag** marks content for animation. Rules define what happens to tagged conte
 - `once("name", ...)` — Apply a transformation for just this step
 - `cover("name", ...)` — Hide content by applying a hidden case
 - `revert("name", ...)` — Reset to a base state without inheritance
+- `clear("name")` — Reset to base state and clear all previous modifiers to base case.
 
 ### Cases
 A **case** is a named transformation that can be applied to content:
@@ -39,7 +39,13 @@ An **object** is a reusable component with built-in state management:
 - Use `revert()` or `cover()` to change behavior between steps
 
 ### Animation Workflow
-1. Define slide content using `slide(s => [content], s)`
+1. Define slide content using 
+  ```typst
+  #slide(s => ([
+    #let tag = tag.with(s)
+    // Your content goes here
+  ], s))
+  ```
 2. Mark elements with `tag("name", content)` that you want to animate
 3. Push animation rules with `s.push()`:
    - Single rule: `s.push(apply("name"))`
@@ -51,12 +57,9 @@ An **object** is a reusable component with built-in state management:
 
 There are several Typst presentation packages, each with different strengths. Choose Sanor if you need fine-grained animation control and incremental content reveals.
 
-| Package | Strengths | When to choose |
-| --- | --- | --- |
-| **Sanor** | Incremental reveals, custom state, tagged animations, step-by-step control | You need animated presentations with precise control over when and how content appears. Great for tutorials, lectures, interactive demos. |
-| **Touying** | Simple slides, slide themes, straightforward syntax | You want a lightweight framework with sensible defaults and don't need complex animations. |
-| **Polylux** | Polished visual designs, built-in themes, design-focused | You prioritize appearance and want prebuilt themes. Best for conference presentations with consistent visual branding. |
-| **Presentate** | General-purpose framework, high-level abstractions, convenience functions | You want a general slide deck tool with reasonable defaults and don't need much precise animations. |
+- **Touying**: Sanor provides fine-grained animation controls that are applicable to *any* packages, not only CeTZ or Fletcher. Since Sanor does not inspect content, it can be used with any functions, even in `context` blocks.
+- **Touying, Polylux**: You can arrange the steps of the animation of each element **without knowing the subslide index**. Unlike traditional PDF presentation packages that animate contents based on either the subslide index or the position where they are put in the source code, Sanor separates the *declaration* and *animation* of the content: put the content in the code wherever you think it's good, and then animate it later.
+- **Presentate**: This functionality is closely related to Presentate's `motion` and `tag` functions. However, the framework provided there cannot interact well with `pause` and has less flexibility (e.g., managing the showing state of the element). So, I implemented it here in a separate package, created specifically for *animations*.
 
 ## Installation
 
@@ -181,32 +184,46 @@ Apply transformations without inheritance. Equivalent to `apply(name, ..cases, i
 
 #### `clear(name)`
 
-Clear previous modifiers applied to a tagged element, resetting it before applying new cases in the current step.
+Reset a tagged element to its base state and clear all previous modifiers. Unlike `revert()`, the previous animation styles are completely lost.
 
 **Parameters:**
 - `name` (str): Tag name to target
 
-**Behavior:** Removes prior active cases from the element so subsequent transformations start from a clean state.
+**Behavior:** Resets the element to base state without preserving history. Subsequent transformations start fresh.
 
 **Example:**
 ```typst
-#slide(s => ([
-  #let tag = tag.with(s)
-  #tag("item")[Important]
+#let c1 = object(circle, hidden: hide)
+#tag("c1", c1((0, 0)))
 
-  #s.push(apply("item", text.with(fill: red)))
-  #s.push(clear("item"))
-  #s.push(apply("item", text.with(fill: green)))
-], s))
+#s.push((apply("c1"), once("normal")))
+#s.push((apply("c1", fill: red), once("red")))
+#s.push((apply("c1", radius: 3), once("grow")))
+#s.push((clear("c1"), once("normal")))  // Reset to base
+#s.push((apply("c1"), once("back")))    // Apply will not preserve previous transforms
 ```
 
 #### `revert(name, ..cases)`
 
-Reset to base state and optionally apply new cases. Use to undo accumulated transformations.
+Reset a tagged element to its base state while preserving animation history. Unlike `clear()`, previous animation styles can still be applied in future steps.
 
 **Parameters:**
 - `name` (str): Tag name to target
 - `..cases` (any): Cases to apply (inherits from previous steps)
+
+**Behavior:** Clears current applied transformations but maintains the object's internal state, allowing previous animations to be re-applied.
+
+**Example:**
+```typst
+#let c1 = object(circle, hidden: hide)
+#tag("c1", c1((0, 0)))
+
+#s.push((apply("c1"), once("normal")))
+#s.push((apply("c1", fill: red), once("red")))
+#s.push((apply("c1", radius: 3), once("grow")))
+#s.push((revert("c1"), once("normal")))  // Reset to base
+#s.push((apply("c1"), once("back")))     // Apply will show as if previous animations weren't applied, but history is preserved
+```
 
 #### `force(name, ..cases)`
 
@@ -267,7 +284,50 @@ To apply multiple animations in the same step, group rules in a tuple or array:
 #s.push((once("a"), once("b"), once("c"))) // All three happen in this step
 ```
 
-## API Reference
+## PDF Presenter Console Integration
+
+Sanor includes the `pdfpc` module for compatibility with [PDF Presenter Console](https://pdfpc.github.io/), enabling speaker notes, slide timing, and presenter features in your PDF presentations.
+
+### pdfpc Module Functions
+
+#### `speaker-note(text)`
+
+Adds speaker notes to a slide, visible only in the presenter view.
+
+**Parameters:**
+- `text` (str or raw): Speaker notes as a string or raw code block
+
+**Usage:**
+```typst
+#speaker-note[Remember to emphasize this point during the presentation]
+```
+
+#### `config(duration-minutes, start-time, end-time, last-minutes, ...)`
+
+Configure presentation settings for pdfpc.
+
+**Parameters:**
+- `duration-minutes` (int): Total presentation duration in minutes
+- `start-time` (str or datetime): Presentation start time in HH:MM format
+- `end-time` (str or datetime): Presentation end time in HH:MM format
+- `last-minutes` (int): Highlight final N minutes with visual alert
+- `default-transition` (dict): Default slide transition settings
+- `disable-markdown` (bool): Disable markdown in notes
+
+**Usage:**
+```typst
+#pdfpc.config(
+  duration-minutes: 30,
+  start-time: "14:00",
+  last-minutes: 5,
+)
+```
+
+#### Other Metadata Functions
+
+- `end-slide` — Mark the end of a slide
+- `save-slide` — Save the current slide state
+- `hidden-slide` — Mark a slide as hidden from the presentation
 
 ## Examples
 
@@ -429,6 +489,13 @@ Transform and combine transformations across steps:
   #s.push(cover("obj", "color-blue"))
 ], s))
 ```
+
+## Inspiration and Possibilities
+
+The inspiration for the Sanor package came from an amazing animation library for creating mathematical animations in Python called [Manim](https://www.manim.community/).
+I always wanted to include such transformation of elements into Typst presentations. This is because Typst provides good defaults for laying out elements; I don't need to specify coordinates or calculate much where to put something on a slide, and Typst packages are awesome (don't you agree?). Moreover, animated PDF files can be opened *anywhere*. I just need a thumb drive and put it on any computer to present my slides. Therefore, based on the UI of Manim, I created this package.
+
+Then, when I started creating some slides with it, I thought of a way to integrate this package with [Tanim](https://github.com/OrangeX4/tanim), a program that lets you create animations from Typst documents. Since the frame-by-frame specification is already implemented, the only remaining (VERY complex) task is to interpolate those discrete animations over a period of time. Since Typst HTML export is starting to mature, I think it is possible to upgrade this package into a tool for animated HTML presentations like [Manim-Slides](https://github.com/jeertmans/manim-slides). 
 
 ## License
 

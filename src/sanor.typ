@@ -2,6 +2,7 @@
 #import "object-case.typ": case, make-object
 #import "process.typ": _process, get-total-steps
 #import "class.typ"
+#import "pdfpc.typ"
 
 
 #let resolve(s, name) = {
@@ -77,6 +78,7 @@
     if i > 1 {
       counter(page).update(n => n - 1)
     }
+    pdfpc.pdfpc-slide-markers(ctx)
   }
 
   v(0pt)
@@ -178,6 +180,6 @@
 #let set-option(..new-options) = {
   let options = utils.merge-dicts(base: default-options, new-options.named())
   return (
-    slide: slide.with(info: options),
+    slide: slide.with(options: options),
   )
 }
