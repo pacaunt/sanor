@@ -1,5 +1,8 @@
 # Sanor
 
+| ![example for multiple case display](https://github.com/pacaunt/sanor/blob/96892e3326f76f6f9653e02e96d92419acc0d523/docs/gif/example-case.gif) | ![math animation example](https://github.com/pacaunt/sanor/blob/96892e3326f76f6f9653e02e96d92419acc0d523/docs/gif/example-math.gif) |
+| ![Synchronize animation between elements](https://github.com/pacaunt/sanor/blob/96892e3326f76f6f9653e02e96d92419acc0d523/docs/gif/example-sync.gif) | ![Code animation with comment insertion](https://github.com/pacaunt/sanor/blob/96892e3326f76f6f9653e02e96d92419acc0d523/docs/gif/example-code.gif) |
+
 Fast, small, but powerful presentation framework in Typst.
 
 Sanor provides a framework for creating highly animated PDF presentations by step-by-step reveal controls over each element in a Typst document. 
