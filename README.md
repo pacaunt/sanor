@@ -7,8 +7,7 @@ Click on the image to jump to the source code.
 <table>
   <tr>
     <td><a href="./gallery/example-math.typ"><img src="./gallery/example-math.gif" alt="math animation example"></a></td>
-    <td><a href="./gallery/example-case.typ"><img src="./gallery/example-case.gif" 
-     alt="example for multiple case display"></a></td>
+    <td><a href="./gallery/example-case.typ"><img src="./gallery/example-case.gif" alt="example for multiple case display"></a></td>
   </tr>
   <tr>
     <td><a href="./gallery/example-sync.typ"><img src="./gallery/example-sync.gif" alt="Synchronize animation between elements"></a></td>
