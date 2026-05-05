@@ -210,11 +210,11 @@ Reset a tagged element to its base state and clear all previous modifiers. Unlik
 **Example:**
 ```typst
 #let c1 = object(circle, hidden: hide)
-#tag("c1", c1((0, 0)))
+#tag("c1", c1())
 
 #s.push((apply("c1"), once("normal")))
 #s.push((apply("c1", fill: red), once("red")))
-#s.push((apply("c1", radius: 3), once("grow")))
+#s.push((apply("c1", radius: 3cm), once("grow")))
 #s.push((clear("c1"), once("normal")))  // Reset to base
 #s.push((apply("c1"), once("back")))    // Apply will not preserve previous transforms
 ```
@@ -232,11 +232,11 @@ Reset a tagged element to its base state while preserving animation history. Unl
 **Example:**
 ```typst
 #let c1 = object(circle, hidden: hide)
-#tag("c1", c1((0, 0)))
+#tag("c1", c1())
 
 #s.push((apply("c1"), once("normal")))
 #s.push((apply("c1", fill: red), once("red")))
-#s.push((apply("c1", radius: 3), once("grow")))
+#s.push((apply("c1", radius: 3cm), once("grow")))
 #s.push((revert("c1"), once("normal")))  // Reset to base
 #s.push((apply("c1"), once("back")))     // Apply will show as if previous animations weren't applied, but history is preserved
 ```
@@ -265,10 +265,9 @@ Creates a reusable component with built-in state management and named cases.
 **Usage:**
 ```typst
 #let box = object(rect, red: case(fill: red), large: case(width: 4cm))
-#let tag = tag.with(s)
 #tag("mybox", box[Text])
-#s.push(apply("mybox", "red"))
-#s.push(apply("mybox", "large"))
+#s.push(apply("mybox", "red"))    // apply the `red` case
+#s.push(apply("mybox", "large"))  // apply the `large` case
 ```
 
 #### `case(..modifiers)`
@@ -471,38 +470,6 @@ Generate a static version showing all steps:
   #tag("content")[This content evolves]
   #s.push(apply("content", text.with(fill: red)))
   #s.push(apply("content", text.with(weight: "bold")))
-], s))
-```
-
-### Advanced: Content Modification
-
-Transform and combine transformations across steps:
-
-```typst
-#slide(s => ([
-  #let tag = tag.with(s)
-  = Evolution
-  
-  #let shape = object(
-    rect.with(width: 2cm, height: 2cm),
-    grow: case(width: 3cm, height: 3cm),
-    color-red: case(fill: red),
-    color-blue: case(fill: blue),
-  )
-  
-  #tag("obj", shape[Box])
-  
-  // Step 1: Show at normal size
-  #s.push(apply("obj"))
-  
-  // Step 2: Grow (box is now 3cm x 3cm)
-  #s.push(apply("obj", "grow"))
-  
-  // Step 3: Color red (remains grown, now red)
-  #s.push(apply("obj", "color-red"))
-  
-  // Step 4: Switch to blue (remains grown)
-  #s.push(cover("obj", "color-blue"))
 ], s))
 ```
 
