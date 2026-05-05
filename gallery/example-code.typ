@@ -1,4 +1,4 @@
-#import "../../src/lib.typ": *
+#import "../src/lib.typ": *
 
 // Set up presentation format.
 #set page(paper: "presentation-16-9", fill: luma(20))

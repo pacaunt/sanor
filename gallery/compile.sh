@@ -6,9 +6,9 @@ for file in *.typ; do
     filename="${file%.*}"
     
     echo "Compiling $file..."
-    # mkdir "$filename"
-    typst c "$file" --format=png --root ../.. "$filename/$filename{0p}.png"
-    ffmpeg -framerate 1.5 -i $filename/$filename%d.png $filename/$filename.gif
+    typst c "$file" --format=png --root .. "$filename{0p}.png"
+    ffmpeg -framerate 1.5 -i $filename%d.png $filename.gif
+    rm *.png
 
 done
 
