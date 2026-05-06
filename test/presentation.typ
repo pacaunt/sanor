@@ -82,3 +82,25 @@
     #s.push(apply("msg2", "highlight"))
   ], s),
 )
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Shorthand for apply
+    #set align(center + horizon)
+    #set circle(stroke: white)
+    #set rect(stroke: white)
+    #set polygon(stroke: white)
+    #stack(dir: ltr, spacing: 1fr)[
+      #tag("circ", circle[A circle])
+    ][
+      #tag("rect", rect[A rectangle])
+    ][
+      #tag("trig", polygon((0%, 0%), (10%, 10%), (0%, 10%)))
+    ]
+    #s.push("circ")
+    #s.push("rect")
+    #s.push("trig")
+  ],
+  s
+))
