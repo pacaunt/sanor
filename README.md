@@ -180,7 +180,7 @@ Apply transformations from this step onward (persistent).
 
 **Behavior:** Transformations accumulate across steps. Future steps continue with these transformations unless `revert()` is called.
 
-**Note*:** You can use `s.push(name)` as a short hand for `s.push(apply(name))`.
+**Note:** You can use `s.push(name)` as a short hand for `s.push(apply(name))`.
 
 #### `once(name, ..cases, inherit: true)`
 
