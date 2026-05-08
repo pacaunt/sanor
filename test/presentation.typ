@@ -104,3 +104,18 @@
   ],
   s
 ))
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Test Last Once and Apply 
+
+    #let myrect = object(rect.with(stroke: white))
+    #tag("m", myrect[Some Rectangle])
+
+    #s.push(apply("m"))
+    #s.push(once("m", fill: red))
+    #s.push(())
+  ],
+  s
+))
