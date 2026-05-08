@@ -80,14 +80,7 @@
 /// `defined-cases` means  *named* cases.
 #let _object(func, hidden: case(hide), defined-cases) = {
   // define the hidden and base cases
-  // defined-cases.hidden = resolve-case(hidden, defined: defined-cases)
-  hidden = make-case(hidden)
-  if class-of(hidden) == str {
-    defined-cases.hidden = resolve-case(hidden, defined: defined-cases)
-  } else {
-    defined-cases.hidden = hidden
-  }
-
+  defined-cases.hidden = resolve-case(hidden, defined: defined-cases)
   defined-cases.base = Case((:), (it => it,))
 
   Object(
