@@ -416,7 +416,7 @@ Coordinate animations across multiple elements:
 #slide(s => ([
   #let tag = tag.with(s)
   
-  #grid(columns: 2fr, gap: 1em)[
+  #grid(columns: 2fr, gutter: 1em)[
     #tag("left")[Left item]
   ][
     #tag("right")[Right item]
