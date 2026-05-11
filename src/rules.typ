@@ -22,9 +22,18 @@
 #let Rule(name, applier) = class("rule", name: name, applier: applier)
 
 #let make-applier(kind, ..maybe-cases, inherit: true, active: auto) = {
-  let kwarg-cases = (make-case(maybe-cases.named()),)
-  let arg-cases = maybe-cases.pos().map(make-case)
-  Applier(kind, kwarg-cases + arg-cases, inherit: inherit, active: active)
+  let kwarg-cases = maybe-cases.named()
+  let arg-cases = maybe-cases.pos()
+  let all-cases = ()
+  // Filtering out the empty modifiers
+  if kwarg-cases != (:) { 
+    all-cases += (make-case(kwarg-cases),)
+  }
+  if arg-cases != () {
+    all-cases += arg-cases.map(make-case)
+  }
+
+  Applier(kind, all-cases, inherit: inherit, active: active)
 }
 
 #let rule(name, applier, default: "base") = {

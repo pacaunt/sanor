@@ -34,13 +34,16 @@
 == Process 2
 
 #let a = ()
-#a.push(once("A"))
-#a.push(once("B"))
-#a.push(apply("A"))
+#a.push(apply("A", scale))
+#a.push(once("A", figure))
+#a.push((once("B"),))
 #a.push(())
+#a.push(cover("A"))
+
 
 #_allocate-appliers(ctx, a)
 
 RESULT
 
 #_process(ctx, a)
+

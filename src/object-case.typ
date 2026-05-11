@@ -1,11 +1,10 @@
 #import "class.typ": class, class-of, is-class
 #import "utils.typ" as utils: strfmt
 
-#let Case(stylers, wrappers, active: false) = class(
+#let Case(stylers, wrappers) = class(
   "modifier",
   stylers: stylers,
   wrappers: wrappers,
-  active: active,
 )
 
 

@@ -119,3 +119,15 @@
   ],
   s
 ))
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Test Cover
+    #tag("t1")[This is a text]
+    #s.push("t1")
+    #s.push(apply("t1", text.with(fill: red)))
+    #s.push(cover("t1"))
+  ],
+  s
+))

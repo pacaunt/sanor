@@ -46,37 +46,46 @@
   return ctx
 }
 
+// MAIN logic
 #let _process-a-step(status, step) = {
-  let prev = status.appliers
-  let out = ()
+  let step = status.appliers + step
   let is-last-once = false
+  let out = ()
+  let next = ()
+  // Default
+  if step == () {
+    step += if status.active { (status.base-display,) } else { (status.base-hidden,) }
+  }
 
   for applier in step {
-    if applier.active != auto { status.active = applier.active }
-
-    if applier.kind == "clear" {
-      if status.active {
-        prev = (status.base-display,)
-      } else {
-        prev = (status.base-hidden,)
+    if applier.active != auto { 
+      status.active = applier.active 
+      // Only not `auto` and not "once" can descent the appliers
+      if applier.kind != "once" {
+        next += (applier,)
       }
     }
-
+    // Clear the previous appliers
+    if applier.kind == "clear" {
+      if status.active {
+        next = (status.base-display,)
+      } else {
+        next = (status.base-hidden,)
+      }
+    }
+    // Inherit the animation, not clear it out.
     if applier.inherit {
       out += (applier,)
     } else {
       out = (applier,)
     }
-
-    // to capture the last `once` and deactivate if there is nothing to show.
+    // To capture the last `once` and deactivate if there is nothing to show.
     is-last-once = applier.kind == "once"
   }
-  
-  // filter out the `once` effect and the auto active element from `status.active`.
-  // The auto-active applier will not effect the next step animation.
-  status.appliers = prev + out.filter(a => (a.kind != "once" and a.active != auto))
-  // normally when `apply` is called, the `status.appliers` will contain a "base" case. 
-  // if `once` is called but there is not any case to apply, even from the previous case,
+  // Ascend the styles.
+  status.appliers = next
+  // Normally, when `apply` is called, the `status.appliers` will contain a "base" case.
+  // If `once` is called but there is not any case to apply, even from the previous case,
   // then, the status must be set to `false` to prevent persistence of showing the element.
   if is-last-once and status.appliers == () { status.active = false }
 
@@ -98,10 +107,6 @@
   let result = ()
 
   for step in steps {
-    step = status.appliers + step
-    if step == () {
-      step += if status.active { (base-display,) } else { (base-hidden,) }
-    }
     (status, step) = _process-a-step(status, step)
     result.push(step.map(a => a.cases).sum())
   }
