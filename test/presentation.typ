@@ -131,3 +131,11 @@
   ],
   s
 ))
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    #tag("Hello", hidden: "base")[HELLO]
+  ],
+  s
+))

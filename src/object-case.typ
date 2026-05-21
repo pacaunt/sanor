@@ -79,8 +79,8 @@
 /// `defined-cases` means  *named* cases.
 #let _object(func, hidden: case(hide), defined-cases) = {
   // define the hidden and base cases
-  defined-cases.hidden = resolve-case(hidden, defined: defined-cases)
   defined-cases.base = Case((:), (it => it,))
+  defined-cases.hidden = resolve-case(hidden, defined: defined-cases)
 
   Object(
     func,
@@ -88,15 +88,14 @@
   )
 }
 
-#let _call-object(obj, case, debug: false) = {
-  if debug { return obj }
+#let _call-object(obj, case) = {
   utils.pipe((obj.func)(..case.stylers), ..case.wrappers)
 }
 
-#let _make-object(obj) = (..cases, debug: false) => {
+#let _make-object(obj, ..cases) = {
   let cases = cases.pos().map(c => resolve-case(c, defined: obj.cases))
   let current-case = combine-case(..cases)
-  _call-object(obj, current-case, debug: debug)
+  _call-object(obj, current-case)
 }
 
 /// Creates an object with different states.
@@ -124,11 +123,7 @@
 
   let cases = utils.map-dict-values(defined-cases.named(), make-case)
 
-  (..args) => {
-    let obj = _object(func.with(..args), hidden: hidden, cases)
-
-    _make-object(obj)
-  }
+  (..args) => _object(func.with(..args), hidden: hidden, cases)
 }
 
 /// There are 3 sources of cases:
@@ -136,19 +131,16 @@
 /// 2. The `tag`: defined cases,
 /// 3. The canvas stage: may not be defined cases.
 /// The `object` itself will combine all of the cases into one.
-#let make-object(maybe-obj, hidden: case(hide), ..defined-cases) = {
+#let make-object(obj, hidden: case(hide), ..defined-cases) = {
   hidden = make-case(hidden)
-  if type(maybe-obj) == function {
-    let obj = maybe-obj(debug: true)
 
-    if class-of(obj) == "object" {
-      // add the other predefined-cases into the object
-      defined-cases = defined-cases.named() + (hidden: hidden)
-      obj.cases = utils.merge-dicts(base: obj.cases, defined-cases)
-
-      return _make-object(obj)
-    }
+  if class-of(obj) == "object" {
+    // add the other predefined-cases into the object
+    defined-cases = defined-cases.named() + (hidden: hidden)
+    obj.cases = utils.merge-dicts(base: obj.cases, defined-cases)
+  } else {
+    obj = object(() => obj, ..defined-cases, hidden: hidden)()
   }
 
-  object(() => maybe-obj, ..defined-cases, hidden: hidden)()
+  return (..resolved-cases) => _make-object(obj, ..resolved-cases)
 }

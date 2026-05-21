@@ -15,6 +15,14 @@
     ))
 }
 
+// raw tag function
+#let _tag(s, name, body, hidden: auto, ..defined-cases) = {
+  let (ctx, ..) = s
+  if hidden == auto { hidden = ctx.defined-cases.remove("hidden") }
+  let resolved-cases = resolve(s, name)
+  make-object(body, ..ctx.defined-cases, ..defined-cases, hidden: hidden)(..resolved-cases)
+}
+
 /// Tags content for animation control.
 ///
 /// This function allows you to mark content that can be modified or revealed
@@ -35,10 +43,11 @@
 /// ], s))
 /// ```
 #let tag(s, name, body, hidden: auto, ..defined-cases) = {
-  let (ctx, ..) = s
-  if hidden == auto { hidden = ctx.defined-cases.remove("hidden") }
-  let resolved-cases = resolve(s, name)
-  make-object(body, ..ctx.defined-cases, ..defined-cases, hidden: hidden)(..resolved-cases)
+  if type(body) == function {
+    // nested tag will apply without hidden by default
+    body = body(_tag.with(s, hidden: "base"))
+  }
+  _tag(s, name, body, hidden: hidden, ..defined-cases)
 }
 
 /// The `pause` function.
@@ -165,6 +174,21 @@
     }
   }
 }
+
+#let scene(
+  options: default-options,
+  func,
+  hidden: auto,
+  is-shown: false,
+  defined-cases: (:),
+  controls: (),
+) = slide(
+  s => (func(tag.with(s)), s + controls),
+  options: options,
+  hidden: hidden,
+  is-shown: is-shown,
+  defined-cases: defined-cases,
+)
 
 /// Sets global options for slides.
 ///
