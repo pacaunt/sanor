@@ -9,14 +9,19 @@
   #title[Scene Examples]
 ])
 
-#scene(tag => [
-  = Simple Scene 
-  #tag("t1")[some text]
-  #tag("m1", ll => $
-               a^2 + b^2 = ll("c", c^2)
-             $)
-], controls: (
-  (apply("t1"), apply("m1")),
-  apply("t1", text.with(fill: red)),
-  apply("c", text.with(fill: orange))
-))
+#scene(
+  tag => [
+    = Simple Scene
+    #tag("t1")[some text]
+    #tag("m1", ll => {
+      $
+        a^2 + b^2 = ll("c", c^2)
+      $
+    })
+  ],
+  controls: (
+    (apply("t1"), apply("m1")),
+    apply("t1", text.with(fill: red)),
+    apply("c", text.with(fill: orange)),
+  ),
+)

@@ -1,13 +1,13 @@
 #import "utils.typ": strfmt
 
 #let select(element) = {
-  if type(element) in (str, selector, function, regex, symbol) {
+  if type(element) in (str, selector, function, regex, symbol, label) {
     return selector(element)
-  } 
-  
+  }
+
   if type(element) == content {
     // extract the element in math mode.
-    if element.func() == math.equation {
+    if element.func() == math.equation and not element.has("label") {
       element = element.body
     }
 
