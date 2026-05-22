@@ -3,3 +3,6 @@
 #import "rules.typ": apply, once, revert, cover, force, clear
 #import "pdfpc.typ"
 #import "selector.typ": select
+#import "components/component.typ"
+#import "components/mcomps.typ"
+#import "components/ccomps.typ"

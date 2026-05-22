@@ -27,10 +27,10 @@
   let all-cases = ()
   // Filtering out the empty modifiers
   if kwarg-cases != (:) { 
-    all-cases += (make-case(kwarg-cases),)
+    all-cases += (kwarg-cases,)
   }
   if arg-cases != () {
-    all-cases += arg-cases.map(make-case)
+    all-cases += arg-cases //.map(ensure-case)
   }
 
   Applier(kind, all-cases, inherit: inherit, active: active)

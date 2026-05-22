@@ -50,9 +50,12 @@
   Case(stylers, wrappers)
 }
 
-#let make-case(maybe-case) = {
-  if class-of(maybe-case) in (str, "modifier") {
+#let resolve-case(maybe-case, defined: (:)) = {
+  if class-of(maybe-case) == "modifier" {
     return maybe-case
+  }
+  if class-of(maybe-case) == str {
+    return resolve-case(defined.at(maybe-case))
   }
   if class-of(maybe-case) == dictionary {
     return case(..maybe-case)
@@ -64,38 +67,10 @@
   return case(it => maybe-case)
 }
 
-#let resolve-case(maybe-case, defined: (:)) = {
-  let case = make-case(maybe-case)
-  if type(case) == str {
-    return defined.at(maybe-case, default: case)
-  }
-  if class-of(case) == "modifier" {
-    return case
-  }
-
-  panic(strfmt("Unsupported case `{}`", maybe-case))
-}
-
-/// `defined-cases` means  *named* cases.
-#let _object(func, hidden: case(hide), defined-cases) = {
-  // define the hidden and base cases
-  defined-cases.base = Case((:), (it => it,))
-  defined-cases.hidden = resolve-case(hidden, defined: defined-cases)
-
-  Object(
-    func,
-    cases: defined-cases,
-  )
-}
-
-#let _call-object(obj, case) = {
-  utils.pipe((obj.func)(..case.stylers), ..case.wrappers)
-}
-
-#let _make-object(obj, ..cases) = {
+#let call-object(obj, ..cases) = {
   let cases = cases.pos().map(c => resolve-case(c, defined: obj.cases))
-  let current-case = combine-case(..cases)
-  _call-object(obj, current-case)
+  let case = combine-case(..cases)
+  utils.pipe((obj.func)(..case.stylers), ..case.wrappers)
 }
 
 /// Creates an object with different states.
@@ -121,9 +96,11 @@
 #let object(func, hidden: case(hide), ..defined-cases) = {
   assert(defined-cases.pos() == (), message: "Unexpected positional arguments")
 
-  let cases = utils.map-dict-values(defined-cases.named(), make-case)
+  defined-cases = defined-cases.named()
+  defined-cases.base = Case((:), (it => it,))
+  defined-cases.hidden = resolve-case(hidden, defined: defined-cases)
 
-  (..args) => _object(func.with(..args), hidden: hidden, cases)
+  (..args) => Object(func.with(..args), cases: defined-cases)
 }
 
 /// There are 3 sources of cases:
@@ -131,16 +108,15 @@
 /// 2. The `tag`: defined cases,
 /// 3. The canvas stage: may not be defined cases.
 /// The `object` itself will combine all of the cases into one.
-#let make-object(obj, hidden: case(hide), ..defined-cases) = {
-  hidden = make-case(hidden)
-
+#let provide-object(obj, hidden: case(hide), ..defined-cases) = {
   if class-of(obj) == "object" {
     // add the other predefined-cases into the object
-    defined-cases = defined-cases.named() + (hidden: hidden)
+    defined-cases = defined-cases.named()
+    if hidden != auto { defined-cases += (hidden: hidden) }
     obj.cases = utils.merge-dicts(base: obj.cases, defined-cases)
   } else {
     obj = object(() => obj, ..defined-cases, hidden: hidden)()
   }
 
-  return (..resolved-cases) => _make-object(obj, ..resolved-cases)
+  return (..resolved-cases) => call-object(obj, ..resolved-cases)
 }

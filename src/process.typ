@@ -1,5 +1,5 @@
 #import "utils.typ"
-#import "object-case.typ": make-object, resolve-case
+#import "object-case.typ": provide-object, resolve-case
 #import "rules.typ": Applier, apply
 #import "class.typ": class, class-of
 

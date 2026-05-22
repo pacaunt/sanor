@@ -1,5 +1,5 @@
 #import "utils.typ"
-#import "object-case.typ": case, make-object
+#import "object-case.typ": case, provide-object, class-of
 #import "process.typ": _process, get-total-steps
 #import "class.typ"
 #import "pdfpc.typ"
@@ -18,9 +18,16 @@
 // raw tag function
 #let _tag(s, name, body, hidden: auto, ..defined-cases) = {
   let (ctx, ..) = s
-  if hidden == auto { hidden = ctx.defined-cases.remove("hidden") }
+  if hidden == auto and class-of(body) != "object" { 
+    hidden = ctx.defined-cases.remove("hidden") 
+  }
   let resolved-cases = resolve(s, name)
-  make-object(body, ..ctx.defined-cases, ..defined-cases, hidden: hidden)(..resolved-cases)
+  provide-object(
+    body,
+    ..ctx.defined-cases,
+    ..defined-cases,
+    hidden: hidden,
+  )(..resolved-cases)
 }
 
 /// Tags content for animation control.
@@ -67,7 +74,7 @@
   let (ctx, ..actions) = s
   let current-step = get-total-steps(actions)
   let hidden-case = if hidden == auto { ctx.defined-cases.hidden } else { hidden }
-  let obj = make-object(body, hidden: hidden-case)
+  let obj = provide-object(body, hidden: hidden-case)
 
   if ctx.subslide > current-step {
     obj("base")
@@ -205,5 +212,6 @@
   let options = utils.merge-dicts(base: default-options, new-options.named())
   return (
     slide: slide.with(options: options),
+    scene: slide.with(options: options),
   )
 }

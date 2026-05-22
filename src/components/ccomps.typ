@@ -1,0 +1,30 @@
+#import "@preview/cetz:0.5.2" as cetz: draw
+#import "component.typ"
+// CeTZ components ready to use
+
+#let ccomp(name, func, ..defined-cases, hidden: draw.hide.with(bounds: true)) = component.new(
+  name,
+  func.with(name: name),
+  hidden: hidden,
+  ..defined-cases,
+)
+
+#let ccontent = ccomp("ccontent", draw.content)
+#let ccircle = ccomp("ccircle", draw.circle)
+#let crect = ccomp("crect", draw.rect)
+#let cbezier = ccomp("cbezier", draw.bezier)
+#let cbezier-through = ccomp("cbezier-through", draw.bezier-through)
+#let crect-around = ccomp("crect-around", draw.rect-around)
+#let cline = ccomp("cline", draw.line)
+#let cpolygon = ccomp("cpolygon", draw.polygon)
+#let cgrid = ccomp("cgrid", draw.grid)
+#let carc = ccomp("carc", draw.arc)
+#let carc-through = ccomp("carc-through", draw.arc-through)
+#let ccircle-through = ccomp("ccircle-through", draw.circle-through)
+#let ccatmull = ccomp("ccatmull", draw.catmull)
+#let chobby = ccomp("chobby", draw.hobby)
+#let cn-star = ccomp("cn-star", draw.n-star)
+#let cmerge-path = ccomp("cmerge-path", draw.merge-path)
+#let ccompound-path = ccomp("ccompound-path", draw.compound-path)
+#let csvg-path = ccomp("csvg-path", draw.svg-path)
+#let cboolean = ccomp("cboolean", draw.boolean)
