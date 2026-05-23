@@ -1,8 +1,20 @@
 #import "component.typ"
 
-#let mcomp = component.new
+/// Markup component constructor
+///
+/// - name (str): Default name for the component
+/// - func (function): Function to create the component
+/// - hidden (case | function): Modifier to apply on the component in hidden case
+/// - defined-cases (arguments): Keyword arguments of cases with their name as the key.
+/// -> function
+#let mcomp(
+  name,
+  func,
+  hidden: component.case(hide),
+  ..defined-cases,
+) = component.new(name, func, hidden: hidden, ..defined-cases)
 
-// Usage: 
+// Usage:
 // ```example
 // #let rrect = mrect.with(
 //   defined-cases: (yellow: case(fill: yellow)),

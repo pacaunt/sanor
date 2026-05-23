@@ -4,7 +4,6 @@
 #import "class.typ"
 #import "pdfpc.typ"
 
-
 #let resolve(s, name) = {
   let (ctx, ..) = s
   ctx
@@ -182,6 +181,18 @@
   }
 }
 
+/// A function for creating a slide, with an animation-context-included `tag` function.  
+/// 
+/// Unlike the slide function, the animation context is already included in the `tag` callback.
+/// The rules for displaying the components must be specified in the `controls` argument instead.
+///
+/// - options (dictionary): A configuration option defined to control the behavior of the slide.
+/// - func (function): A function that receives a `tag` function and returns content
+/// - hidden (auto | case | function): Default modifier for tagged components in its hidden state.
+/// - is-shown (bool): Whether to shown the tagged components by default when the component is not called by the control rules.
+/// - defined-cases (dictionary): A dictionary whose key is a name and value is a case to modify the tagged components.
+/// - controls (rule): An array of rules that will be applied for each step of the animation
+/// -> content
 #let scene(
   options: default-options,
   func,

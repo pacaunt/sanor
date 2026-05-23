@@ -1,9 +1,10 @@
-# Sanor
+# Sanor 
 
 Fast, small, but powerful presentation framework in Typst.
 
 ## Examples
 Click on the image to jump to the source code.
+
 <table>
   <tr>
     <td><a href="./gallery/example-math.typ"><img src="./gallery/example-math.gif" alt="math animation example"></a></td>
@@ -61,6 +62,7 @@ An **object** is a reusable component with built-in state management:
     // Your content goes here
   ], s))
   ```
+  
 2. Mark elements with `tag("name", content)` that you want to animate
 3. Push animation rules with `s.push()`:
    - Single rule: `s.push(apply("name"))`

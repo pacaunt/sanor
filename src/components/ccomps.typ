@@ -1,7 +1,13 @@
 #import "@preview/cetz:0.5.2" as cetz: draw
 #import "component.typ"
-// CeTZ components ready to use
 
+/// CeTZ component constructor
+///
+/// - name (str): default name of the component
+/// - func (function): the component's function
+/// - defined-cases (dictionary): A dictionary of cases with their name as the key.
+/// - hidden (case | function): Default hidden modifier that will apply when the component is in hidden case.
+/// -> function
 #let ccomp(name, func, ..defined-cases, hidden: draw.hide.with(bounds: true)) = component.new(
   name,
   func.with(name: name),
