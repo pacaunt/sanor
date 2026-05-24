@@ -21,6 +21,7 @@
 
 #let Rule(name, applier) = class("rule", name: name, applier: applier)
 
+// Constructor for an applier
 #let make-applier(kind, ..maybe-cases, inherit: true, active: auto) = {
   let kwarg-cases = maybe-cases.named()
   let arg-cases = maybe-cases.pos()
@@ -30,7 +31,7 @@
     all-cases += (kwarg-cases,)
   }
   if arg-cases != () {
-    all-cases += arg-cases //.map(ensure-case)
+    all-cases += arg-cases
   }
 
   Applier(kind, all-cases, inherit: inherit, active: active)

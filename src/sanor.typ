@@ -36,7 +36,7 @@
 ///
 /// - s (context): The slide context provided by `slide()`.
 /// - name (str): A unique identifier for the tagged content.
-/// - body (content): The content to tag.
+/// - body (content | function): The content to tag. If a callback is used, t
 /// - hidden (auto, case): The case to use when content is hidden.
 /// - ..defined-cases (cases): Additional cases defined for this tag.
 /// -> content
@@ -106,11 +106,11 @@
   hide(body)
 }
 
-/// The `cases` should be
-/// (
-///   name-1: (..array of cases,),
-///   name-2: (..array of cases,),
-/// )
+// The `cases` should be
+// (
+//   name-1: (..array of cases,),
+//   name-2: (..array of cases,),
+// )
 #let default-options = (
   handout: false,
   handout-index: auto,
