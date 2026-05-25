@@ -1,6 +1,6 @@
 # Sanor 
 
-Fast, small, but powerful presentation framework in Typst.
+Precise animated presentation framework in Typst.
 
 ## Examples
 Click on the image to jump to the source code.

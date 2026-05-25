@@ -6,6 +6,6 @@ authors = ["pacaunt <@pacaunt>"]
 license = "MIT"
 compiler = "0.13.1"
 repository = "https://github.com/pacaunt/sanor"
-description = "Fast, small, presentation animation utility"
+description = "Precise animated presentation utility"
 categories = ["utility", "presentation"]
 exclude = ["/gallery/*", "/docs/*"]
