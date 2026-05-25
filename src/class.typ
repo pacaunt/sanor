@@ -19,12 +19,15 @@
   if is-class(obj) { obj.__sanor_class_name } else { type(obj) }
 }
 
-/// check if both `obj1` and `obj2` have the same class.
-#let match-class(obj1, obj2) = {
-  for obj in (obj1, obj2) {
-    if not is-class(obj) {
-      panic(strfmt("Expected a class, got `{}`", obj1))
-    }
+#let Class(name, fields: (:), methods: (:)) = {
+  fields.__sanor_class_name = name 
+  fields.new = (self) => fields
+  for (k, m) in methods.pairs() {
+    fields.insert(k, m.with(fields))
   }
-  obj1.__sanor_class_name == obj2.__sanor_class_name
+  fields
+}
+
+#let compile(data) = {
+
 }
