@@ -14,6 +14,9 @@ Click on the image to jump to the source code.
     <td><a href="./gallery/example-sync.typ"><img src="./gallery/example-sync.gif" alt="Synchronize animation between elements"></a></td>
     <td><a href="./gallery/example-code.typ"><img src="./gallery/example-code.gif" alt="Code animation with comment insertion"></a></td>
   </tr>
+  <tr>
+    <td><a href="./gallery/example-chem.typ"><img src="./gallery/example-chem.gif" alt="Chemical reaction animation"></a></td>
+  </tr>
 </table>
 
 Sanor provides a framework for creating highly animated PDF presentations by step-by-step reveal controls over each element in a Typst document. 
@@ -178,6 +181,27 @@ Sets global configuration options for all subsequent slides. Used before slides 
 
 **Returns:** Updated exports with options applied
 
+#### `select(element)`
+
+Create a selector from a string, selector expression, regex, symbol, label, function,
+or content node. This is useful for `show` rules that target arbitrary content
+by converting a value into a selector.
+
+**Parameters:**
+- `element` (any): A selector-like value, content, or expression to select
+
+**Behavior:**
+- If `element` is already a selector-like type, it is returned as a selector
+- If `element` is content, the function resolves the element's function and
+  fields into a selector expression
+- Works well with `show select(...)` rules for styling or modifying content
+
+**Usage example:**
+```typst
+#show select($a_b$): set text(fill: red)
+#show select($(a + b)$): set text(fill: orange)
+```
+
 ### Animation Rules
 
 Rules define what happens to tagged content at each step. Use these in `s.push()`.
@@ -286,6 +310,35 @@ Creates a reusable component with built-in state management and named cases.
 #s.push(apply("mybox", "large"))  // apply the `large` case
 ```
 
+#### `component.new(name, func, hidden: case(hide), ..defined-cases)`
+Create a reusable tagged component that combines `object()` and `tag()` into one helper.
+
+**Parameters:**
+- `name` (str): Default component name and tag name
+- `func` (function): Base drawing function for the component
+- `hidden` (case): Hidden case to apply when the component is hidden
+- `..defined-cases` (arguments): Named cases available to the component
+
+**Behavior:**
+- The returned function accepts either `s` or a bound `tag` function as its first argument
+- It uses the component `name` as the default tag name unless overridden
+- It automatically applies the hidden case when the component is hidden
+
+**Example:**
+```typst
+#let badge = component.new(
+  "badge",
+  block,
+  highlight: case(fill: yellow),
+)
+
+#slide(s => ([
+  #let tag = tag.with(s)
+  #badge(tag, [Label])
+  #s.push(apply("badge", "highlight"))
+], s))
+```
+
 ### Predefined Components
 The package ships ready-made components in `src/components/*`. These helper components wrap `object()` and `tag()`, so you can use them directly with either a bound `tag` function or the slide context `s`.
 
@@ -316,49 +369,6 @@ The package ships ready-made components in `src/components/*`. These helper comp
 
 These components are helpful when you need markup or CeTZ-based reusable elements without building every object manually.
 
-### Custom Components 
-
-You can create a custom component by declaring it with 
-
-```typst 
-#let mycomp = component.new(
-  name, // Default component name
-  func, // Component's drawing function
-  hidden: case(hide) // Hidden case for your component,
-  ..defined-cases    // Predefined cases
-)
-```
-
-and use the component by 
-
-```typst
-#mycomp(
-  tag,           // `tag` function or `s` from the slide
-  name: "mycomp" // Component's tagged name
-  ..args         // Component's arguments 
-)
-// rule for displaying the component
-#s.push(apply("mycomp")) 
-```
-**Usage example:**
-```typst
-// Declaration
-#let yellowbox = mcomp(
-  "yellowbox",
-  rect.with(stroke: yellow),
-  wide: case(width: 100%),
-  fade: case(fill: yellow.transparentize(80%)),
-)
-
-#slide(s => ([
-  #let tag = tag.with(s)
-  // Displaying the component
-  #yellowbox(tag, [A custom component], name: "yellowbox")
-  // Rule for modifying the component
-  #s.push(apply("yellowbox", width: 100%))
-], s))
-```
-
 #### `case(..modifiers)`
 
 Defines a reusable transformation for styling or wrapping content.
@@ -368,7 +378,7 @@ Defines a reusable transformation for styling or wrapping content.
 
 **Named arguments** become style properties:
 ```typst
-#case(fill: red, weight: "bold")  // Apply fill and weight properties
+#case(fill: red, highlight weight: "bold")  // Apply fill and weight properties
 ```
 
 **Positional arguments** must be functions that transform content:

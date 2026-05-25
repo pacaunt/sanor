@@ -10,77 +10,26 @@
   defined-cases: ("grayed": text.with(fill: gray.transparentize(70%))),
   s => (
     [
-      #let tag = tag.with(s)
-      = Chemical Reaction
+      #let tag = tag.with(s, hidden: none)
+      = Redox Reaction
+
       #set align(center + horizon)
-      #tag(1, tag => {
-        $
-          ch("aA + bB -> cC + dD")
-        $
-      })
-    
-      #tag("species")[#ch("A"), #ch("B"), #ch("C"), and #ch("D") are _chemical species_.] \
-      #tag("stoi")[$a$, $b$, $c$, and $d$ are _stoichiometric coefficients_.] \
-      #tag("rxttext", [#ch("A") and #ch("B") are _reactants_.]) \
-      #tag("prdtext", [#ch("C") and #ch("D") are _products_.])
+      // Use selectors to apply styles on certain elements
+      #show select(ch("Fe")).or(select(ch("Fe^3+"))): set text(fill: orange)
+      #show select(ch("Al")).or(select(ch("Al^3+"))): set text(fill: teal)
+      #show select(ch("3e-")): tag.with("e-", hidden: "base")
 
-      #s.push(apply(1))
-      #s.push((
-        once(1, it => {
-          show regex("[ABCD]"): set text(fill: fuchsia)
-          it
-        }),
-        apply("species", it => {
-          show regex("[ABCD]"): set text(fill: fuchsia)
-          show emph: set text(fill: fuchsia)
-          it
-        })
-      ))
+      $
+          && ch("Fe^3+ + Al &-> Fe + Al^3+") \
+        tag("ox", "Oxidation:"&& ch("Al &-> Al^3+") + ch("3e-")) \
+        tag("red", "Reduction:"&& ch("Fe^3+") + ch("3e-") ch("&-> Fe"))
+      $
 
-      #s.push((
-        once(1, it => {
-          show math.equation: eq => {
-            show regex("[abcd]"): set text(fill: green)
-            eq
-          }
-          it
-        }), 
-        apply("stoi", it => {
-          show math.equation: eq => {
-            show regex("[abcd]"): set text(fill: green)
-            show emph: set text(fill: green)
-            eq
-          }
-          it
-        }),
-        force("species", "grayed")
-      ))
-
-      #s.push((
-        once(1 , it => {
-          show regex("A|B"): set text(fill: yellow)
-          it
-        }),
-        apply("rxttext", it => {
-          show regex("A|B"): set text(fill: yellow)
-          show emph: set text(fill: yellow)
-          it
-        }),
-        force("stoi", "grayed")
-      ))
-
-      #s.push((
-        once(1, it => {
-          show regex("C|D"): set text(fill: eastern)
-          it
-        }),
-        apply("prdtext", it => {
-          show regex("C|D"): set text(fill: eastern)
-          show emph: set text(fill: eastern)
-          it
-        }), 
-        force("rxttext", "grayed")
-      ))
+      #s.push(1)
+      #s.push(apply("ox"))
+      #s.push(apply("red"))
+      #s.push(apply("e-", text.with(fill: yellow)))
+      #s.push(force("e-", math.cancel, text.with(fill: luma(100))))
     ],
     s,
   ),
