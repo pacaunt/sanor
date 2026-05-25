@@ -38,8 +38,12 @@
 }
 
 #let rule(name, applier, default: "base") = {
+  // ensure name is a string
+  name = str(name) 
+  // apply default cases
   if applier.cases == () { applier.cases = (default,) }
-  Rule(name, applier)
+
+  return Rule(name, applier)
 }
 
 /// Applies cases to tagged content for the current and all subsequent steps.

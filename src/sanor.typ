@@ -1,10 +1,10 @@
 #import "utils.typ"
-#import "object-case.typ": case, provide-object, class-of
+#import "object-case.typ": case, class-of, provide-object
 #import "process.typ": _process, get-total-steps
 #import "class.typ"
 #import "pdfpc.typ"
 
-#let resolve(s, name) = {
+#let indicate-case(s, name) = {
   let (ctx, ..) = s
   ctx
     .cases
@@ -16,17 +16,22 @@
 
 // raw tag function
 #let _tag(s, name, body, hidden: auto, ..defined-cases) = {
+  // ensure the name is a string
+  name = str(name)
+  // get current cases
   let (ctx, ..) = s
-  if hidden == auto and class-of(body) != "object" { 
-    hidden = ctx.defined-cases.remove("hidden") 
+  let current-cases = indicate-case(s, name)
+  // resolve the hidden case
+  if hidden == auto and class-of(body) != "object" {
+    hidden = ctx.defined-cases.remove("hidden")
   }
-  let resolved-cases = resolve(s, name)
+
   provide-object(
     body,
     ..ctx.defined-cases,
     ..defined-cases,
     hidden: hidden,
-  )(..resolved-cases)
+  )(..current-cases)
 }
 
 /// Tags content for animation control.
@@ -36,7 +41,9 @@
 ///
 /// - s (context): The slide context provided by `slide()`.
 /// - name (str): A unique identifier for the tagged content.
-/// - body (content | function): The content to tag. If a callback is used, t
+/// - body (content | function): The content to tag. If a callback is provided,
+///   it will receive a non-hidden variant of `tag`, allowing nested elements to
+///   be tagged without automatically inheriting the hidden case.
 /// - hidden (auto, case): The case to use when content is hidden.
 /// - ..defined-cases (cases): Additional cases defined for this tag.
 /// -> content
@@ -88,7 +95,8 @@
 
   {
     set heading(outlined: i == 1, bookmarked: i == 1)
-    body
+    // for modifying the whole scene
+    tag((ctx,), "ALL", body, hidden: "base")
 
     if i > 1 {
       counter(page).update(n => n - 1)
@@ -132,7 +140,7 @@
 /// - func (function): A function that takes the slide context `s` and returns the slide content.
 /// - hidden (auto, case): The default hidden case.
 /// - is-shown (bool): Whether hidden content is shown by default.
-/// - defined-states (dict): Predefined states for the slide.
+/// - defined-cases (dict): Predefined cases for the slide.
 /// -> content
 ///
 /// #example ```typst
@@ -181,8 +189,8 @@
   }
 }
 
-/// A function for creating a slide, with an animation-context-included `tag` function.  
-/// 
+/// A function for creating a slide, with an animation-context-included `tag` function.
+///
 /// Unlike the slide function, the animation context is already included in the `tag` callback.
 /// The rules for displaying the components must be specified in the `controls` argument instead.
 ///

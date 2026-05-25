@@ -4,7 +4,7 @@
 for file in *.typ; do
     # Get the filename without the extension (e.g., "main" instead of "main.c")
     filename="${file%.*}"
-    version="0.2.1"
+    version="0.3.0"
     
     echo "Compiling $file..."
 

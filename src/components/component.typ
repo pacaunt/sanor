@@ -3,6 +3,13 @@
 
 /// Component constructor
 ///
+/// Helper for building reusable components. Components created with this
+/// constructor wrap an `object` and call `tag` for you. Note: the first
+/// argument passed at call-time (`tag-s`) may be either a slide context `s`
+/// or a `tag` function (for example the result of `tag.with(s)`). The
+/// constructor adapts automatically so components can be used both inside
+/// `slide` blocks and in helper contexts that already have a bound `tag`.
+///
 /// - name (str): Default name for the component
 /// - func (function): Function to create the component
 /// - hidden (case | function): Modifier to apply on the component in hidden case

@@ -16,8 +16,6 @@ Click on the image to jump to the source code.
   </tr>
 </table>
 
-
-
 Sanor provides a framework for creating highly animated PDF presentations by step-by-step reveal controls over each element in a Typst document. 
 
 ## Features
@@ -27,8 +25,12 @@ Sanor provides a framework for creating highly animated PDF presentations by ste
 - **Animation Rules**: Apply transformations to the elements with `apply()` (persistent), `once()` (single step), `cover()` (hide), `revert()` (reset), or `clear()` (remove prior modifiers)
 - **Reusable Objects**: Create components with `object()` that can have multiple visual states via named cases
 - **Cases System**: Define semantic transformations with `case()` that can be referenced by name instead of repeating properties
+- **Predefined Components**: Import `mcomps` or `ccomps` for reusable object wrappers that integrate directly with `tag()`.
+- **Nested Tag Callbacks**: Use `tag(name, func => ...)` to create nested tagged elements that avoid hidden-case wrapping by default.
 - **Simultaneous Actions**: Coordinate animations across multiple elements by grouping rules in an array
 - **Handout Support**: Generate static handouts from animated presentations with `set-option(handout: true)`
+
+To demostrate these fearures, take a look at [examples](./docs/example.pdf) file.
 
 ## Core Concepts
 
@@ -83,13 +85,13 @@ There are several Typst presentation packages, each with different strengths. Ch
 Add the package to your Typst project:
 
 ```typst
-#import "@preview/sanor:0.2.1": *
+#import "@preview/sanor:0.3.0": *
 ```
 
 ## Quick Start
 
 ```typst
-#import "@preview/sanor:0.2.1": *
+#import "@preview/sanor:0.3.0": *
 
 #slide(s => ([
   // A short hand to avoid repeating `s`.
@@ -128,18 +130,27 @@ Creates a slide where content can be revealed or modified step by step via anima
 ], s))
 ```
 
+
 #### `tag(s, name, body, hidden: auto, ..defined-cases)`
 
 Marks content for animation or state management. Tagged content can be modified by rules in `s.push()`.
 
 **Parameters:**
 - `s` (context): The slide context
-- `name` (str): Unique identifier for this tagged element
-- `body` (content): The content to tag
+- `name` (str): A unique identifier for this tagged element
+- `body` (content | function): The content to tag, or a callback. If a callback is provided, it will be invoked with a variant of `tag` that tags elements in a "non-hidden" (base) mode. This is useful for constructing nested or helper components that should not be wrapped with the slide's hidden-case by default.
 - `hidden` (auto, case): Case to use when content is hidden
 - `..defined-cases` (cases): Additional named cases for this tag
 
 **Returns:** The content with animation hooks applied
+
+**Example:**
+```typst
+#tag("outer", t => {
+  t("inner")[Inner content]
+})
+#s.push(apply("inner", text.with(fill: red)))
+```
 
 #### `pause(s, body, hidden: auto)`
 
@@ -275,6 +286,79 @@ Creates a reusable component with built-in state management and named cases.
 #s.push(apply("mybox", "large"))  // apply the `large` case
 ```
 
+### Predefined Components
+The package ships ready-made components in `src/components/*`. These helper components wrap `object()` and `tag()`, so you can use them directly with either a bound `tag` function or the slide context `s`.
+
+**Import examples:**
+```typst
+#import mcomps: * // for markup components
+#import ccomps: * // for CeTZ components
+```
+
+**Usage example:**
+```typst
+// This will import CeTZ package by default
+#import ccomps: * 
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    #cetz.canvas({
+      import cetz.draw: * 
+      ccircle(tag, (0, 0), name: "c1")
+    })
+    // For CeTZ elements, the name of the element and the tag are the same
+    #s.push("c1")
+  ],
+  s,
+))
+```
+
+These components are helpful when you need markup or CeTZ-based reusable elements without building every object manually.
+
+### Custom Components 
+
+You can create a custom component by declaring it with 
+
+```typst 
+#let mycomp = component.new(
+  name, // Default component name
+  func, // Component's drawing function
+  hidden: case(hide) // Hidden case for your component,
+  ..defined-cases    // Predefined cases
+)
+```
+
+and use the component by 
+
+```typst
+#mycomp(
+  tag,           // `tag` function or `s` from the slide
+  name: "mycomp" // Component's tagged name
+  ..args         // Component's arguments 
+)
+// rule for displaying the component
+#s.push(apply("mycomp")) 
+```
+**Usage example:**
+```typst
+// Declaration
+#let yellowbox = mcomp(
+  "yellowbox",
+  rect.with(stroke: yellow),
+  wide: case(width: 100%),
+  fade: case(fill: yellow.transparentize(80%)),
+)
+
+#slide(s => ([
+  #let tag = tag.with(s)
+  // Displaying the component
+  #yellowbox(tag, [A custom component], name: "yellowbox")
+  // Rule for modifying the component
+  #s.push(apply("yellowbox", width: 100%))
+], s))
+```
+
 #### `case(..modifiers)`
 
 Defines a reusable transformation for styling or wrapping content.
@@ -319,7 +403,7 @@ Adds speaker notes to a slide, visible only in the presenter view.
 
 **Usage:**
 ```typst
-#speaker-note[Remember to emphasize this point during the presentation]
+#pdfpc.speaker-note[Remember to emphasize this point during the presentation]
 ```
 
 #### `config(duration-minutes, start-time, end-time, last-minutes, ...)`
@@ -382,9 +466,11 @@ Mark content and apply transformations:
   // Step 1: Show title
   #s.push(apply("title", text.with(size: 32pt)))
   
-  // Step 2: Show subtitle and make title blue
-  #s.push(apply("title", text.with(fill: blue)))
+  // Step 2: Show subtitle 
   #s.push(apply("subtitle", text.with(style: "italic")))
+
+  // Step 3: Make the title blue
+  #s.push(apply("title", text.with(fill: blue)))
 ], s))
 ```
 
@@ -487,7 +573,10 @@ I always wanted to include such transformation of elements into Typst presentati
 Then, when I started creating some slides with it, I thought of a way to integrate this package with [Tanim](https://github.com/OrangeX4/tanim), a program that lets you create animations from Typst documents. Since the frame-by-frame specification is already implemented, the only remaining (VERY complex) task is to interpolate those discrete animations over a period of time. Since Typst HTML export is starting to mature, I think it is possible to upgrade this package into a tool for animated HTML presentations like [Manim-Slides](https://github.com/jeertmans/manim-slides). 
 
 ## Change Log
-- **0.1.0** First Release
+- **0.3.0** Updated documentation for the new release.
+  - Added support for `tag(name, body)` callbacks that receive a non-hidden tagging helper for nested tagging.
+  - Documented predefined component imports and usage via `mcomps` and `ccomps`.
+  - Updated installation examples and gallery reference snippets for version `0.3.0`.
 - **0.2.1** Refractored the whole animation control system.
   - The `slide` function is now accepting a function that returns an array of content and slide context `s => ([body], s)` **breaking change**.
   - The `slide` control is moved to a more favorable `#s.push(rule)` than the `controls` argument, thus `controls` argument is removed. **breaking change**.
@@ -498,8 +587,7 @@ Then, when I started creating some slides with it, I thought of a way to integra
   - Arguments of `slide` function are renamed as follows:
     - `info` to `options` **breaking change**
     - `defined-states` to `defined-cases` **breaking change**.
-  
-
+- **0.1.0** First Release
 
 ## License
 

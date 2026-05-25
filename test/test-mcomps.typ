@@ -10,12 +10,13 @@
   inset: 0.5em,
 )
 
-#let yellowbox = mcomp("yellowbox", rect.with(stroke: yellow)).with(
-  defined-cases: (
-    wide: case(width: 100%),
-    fade: case(fill: yellow.transparentize(80%)),
-  ),
+#let yellowbox = mcomp(
+  "yellowbox",
+  rect.with(stroke: yellow),
+  wide: case(width: 100%),
+  fade: case(fill: yellow.transparentize(80%)),
 )
+
 
 #scene(
   tag => [
@@ -23,7 +24,7 @@
     #set align(center + horizon)
 
     #rrect(tag, name: "r1")[A rounded rectangle]
-    #yellowbox(tag, [A custom mobject])
+    #yellowbox(tag, [A custom mcomponent])
 
 
   ],

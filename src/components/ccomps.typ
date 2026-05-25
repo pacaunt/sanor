@@ -8,12 +8,12 @@
 /// - defined-cases (dictionary): A dictionary of cases with their name as the key.
 /// - hidden (case | function): Default hidden modifier that will apply when the component is in hidden case.
 /// -> function
-#let ccomp(name, func, ..defined-cases, hidden: draw.hide.with(bounds: true)) = component.new(
+#let ccomp(name, func, ..defined-cases, hidden: draw.hide.with(bounds: true)) = (name: name, ..args) => component.new(
   name,
   func.with(name: name),
   hidden: hidden,
   ..defined-cases,
-)
+)(name: name, ..args)
 
 #let ccontent = ccomp("ccontent", draw.content)
 #let ccircle = ccomp("ccircle", draw.circle)
