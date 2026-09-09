@@ -3,24 +3,39 @@
 #import "rules.typ": Applier, apply
 #import "class.typ": class, class-of
 
+// Helper function for first step counter
+#let shift-increment(actions) = {
+  if actions == () { return 1 }
+  if class-of(actions.at(0)) != int { 0 } else { 1 }
+}
 /// Indices
 /// `#s.push(1)` -> go to the next slide
 /// `#s.push(-1)` -> go back one slide
 /// `#s.push(apply("name"))` -> apply the rule `apply("name")` here
-
 #let get-total-steps(actions) = {
-  actions.map(a => if class-of(a) == int { a } else { 1 }).sum(default: 0)
+  // Normally, every action increments the total steps by 1,
+  // and the minimal number of subslide is 1.
+  // However, the first rule does not increate the total steps.
+  let start = shift-increment(actions)
+  let increments = actions.map(a => if class-of(a) == int { a } else { 1 }).sum(default: 0)
+
+  return increments
 }
 
 /// A step consists of multiple rules, and each rules contains a definition.
 #let _process-a-rule(ctx, rule-or-name) = {
   let rule = rule-or-name
+  // default rule for "name" shortcut
   if class-of(rule-or-name) == str {
     rule = apply(rule-or-name) // If a name is specified, `apply` rule is used.
   }
+  // Previous cases, if available
   let case-steps = ctx.cases.at(rule.name, default: ctx.default-cases)
+  // Add the rule to the current step.
   case-steps.at(ctx.step - 1).push(rule.applier)
+  // Update the cases of that element
   ctx.cases.insert(rule.name, case-steps)
+
   return ctx
 }
 
@@ -28,6 +43,8 @@
 #let _allocate-appliers(ctx, actions) = {
   ctx.total-steps = get-total-steps(actions)
   ctx.default-cases = ((),) * ctx.total-steps
+  // shift the action for the first rule vs integer.
+  // ctx.step += shift-increment(actions)
 
   for action in actions {
     if type(action) == int {
@@ -48,66 +65,88 @@
 
 // MAIN logic
 #let _process-a-step(status, step) = {
-  let step = status.appliers + step
-  let is-last-once = false
-  let out = ()
-  let next = ()
-  // Default
-  if step == () {
-    step += if status.active { (status.base-display,) } else { (status.base-hidden,) }
+  // Current appliers in this step, initialization.
+  status.appliers = ()
+  // If this is the first step, display the history if it is active
+  if status.history == () and step == () {
+    if status.active {
+      status.appliers += (status.base-display,)
+    } else {
+      status.appliers += (status.base-hidden,)
+    }
+    // If this is NOT the first step, display according to the history
+  } else if step == () {
+    status.appliers = status.track
   }
 
   for applier in step {
-    if applier.active != auto { 
-      status.active = applier.active 
-      // Only not `auto` and not "once" can descent the appliers
-      if applier.kind != "once" {
-        next += (applier,)
-      }
+    if applier.active != auto {
+      status.active = applier.active
     }
-    // Clear the previous appliers
-    if applier.kind == "clear" {
-      if status.active {
-        next = (status.base-display,)
-      } else {
-        next = (status.base-hidden,)
-      }
-    }
-    // Inherit the animation, not clear it out.
-    if applier.inherit {
-      out += (applier,)
-    } else {
-      out = (applier,)
-    }
-    // To capture the last `once` and deactivate if there is nothing to show.
-    is-last-once = applier.kind == "once"
-  }
-  // Ascend the styles.
-  status.appliers = next
-  // Normally, when `apply` is called, the `status.appliers` will contain a "base" case.
-  // If `once` is called but there is not any case to apply, even from the previous case,
-  // then, the status must be set to `false` to prevent persistence of showing the element.
-  if is-last-once and status.appliers == () { status.active = false }
 
-  return (status, out)
+    // 'track' and 'history' must be equivalent when the element is visible.
+    // But, track can have invisible modifiers, which will be eliminated
+    // once the element becomes visible.
+    if status.active {
+      status.track = status.history
+    }
+
+    if applier.inherit == true {
+      status.appliers += status.track + (applier,)
+    } else {
+      status.appliers = (applier,)
+    }
+
+    if applier.active == false {
+      status.current-hidden = applier
+    }
+
+    if applier.remain == true {
+      if status.active {
+        status.history += (applier,)
+        status.track = status.history
+      } else {
+        status.track += (applier,)
+      }
+    }
+  
+    if applier.kind == "clear" {
+      status.history = ()
+      status.track = ()
+    }
+
+    if applier.kind == "revert" and not status.active {
+      status.appliers += (status.current-hidden,)
+    }
+
+    status.is-last-once = applier.kind == "once"
+  }
+
+  return (status, status.appliers)
 }
 
 #let _process-steps(ctx, steps) = {
-  let base-display = Applier("apply", ("base",), inherit: true, active: auto)
-  let base-hidden = Applier("apply", ("hidden",), inherit: true, active: auto)
+  let base-display = Applier("apply", ("base",), inherit: true, active: auto, remain: true)
+  let base-hidden = Applier("apply", ("hidden",), inherit: true, active: auto, remain: true)
 
   let status = class(
     "status",
     active: ctx.is-shown,
+    track: (), // for retaining animation
+    history: (), // for keep tracks of visible modifiers
     appliers: (),
     base-display: base-display,
     base-hidden: base-hidden,
+    current-hidden: base-hidden,
+    is-last-once: false,
   )
 
   let result = ()
 
   for step in steps {
     (status, step) = _process-a-step(status, step)
+    if status.is-last-once { status.active = false }
+
     result.push(step.map(a => a.cases).sum())
   }
 

@@ -12,6 +12,7 @@
   step: 1,
   defined-cases: (hidden: case(hide)),
   is-shown: false,
+  debug: false,
 )
 
 #let actions = ()
@@ -35,15 +36,51 @@
 
 #let a = ()
 #a.push(apply("A", scale))
-#a.push(once("A", figure))
+#a.push(once("A", figure, fill: red, width: 3em))
 #a.push((once("B"),))
 #a.push(())
 #a.push(cover("A"))
-
+#a.push(apply("A"))
 
 #_allocate-appliers(ctx, a)
 
 RESULT
 
+// #{ ctx.debug = true }
 #_process(ctx, a)
 
+== Process 3 
+
+#let actions = ()
+
+#actions.push(1)
+#actions.push(1)
+#actions.push(apply("A"))
+#actions.push(once("A", fill: red))
+#actions.push(-1)
+#actions.push((revert("B"),))
+
+=== Allocate
+
+#_allocate-appliers(ctx, actions)
+
+=== Process 
+#_process(ctx, actions)
+
+== Process 4
+
+#let a = ()
+#a.push(apply("A", scale))
+#a.push(once("A", figure, fill: red, width: 3em))
+#a.push((once("B"),))
+#a.push(())
+#a.push(cover("A", fill: gray))
+#a.push(())
+#a.push(revert("A"))
+
+// #_allocate-appliers(ctx, a)
+
+RESULT
+
+// #{ ctx.debug = true }
+#_process(ctx, a)

@@ -95,8 +95,8 @@
 
   {
     set heading(outlined: i == 1, bookmarked: i == 1)
-    // for modifying the whole scene
-    tag((ctx,), "ALL", body, hidden: "base")
+
+    body
 
     if i > 1 {
       counter(page).update(n => n - 1)
@@ -128,6 +128,7 @@
   total-steps: 1,
   defined-cases: (hidden: case(superhide)),
   is-shown: false,
+  debug: false,
 )
 
 /// The main slide function.

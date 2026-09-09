@@ -12,6 +12,7 @@
     #tag("Hello")[This is a text.]
     #s.push(apply("Hello", place.with(center + horizon)))
     #s.push(once("Hello", text.with(fill: red)))
+    #s.push(apply("Hello"))
 
   ],
   s,
@@ -24,6 +25,7 @@
     #let myrect = object(rect, base: case(), yellow: case(fill: yellow))
 
     This is the first text. #tag("yrect", myrect[Hi])
+    #s.push(1)
 
     #pause(s)[Then this came later]
     #s.push(1)
@@ -38,30 +40,32 @@
 
 #slide(s => (
   [
+    == `clear` demonstration
     #let tag = tag.with(s)
     #let c1 = object(circle, hidden: hide)
     #tag("c1", c1())
 
-    #s.push((apply("c1"), once("normal")))
-    #s.push((apply("c1", fill: red), once("red")))
-    #s.push((apply("c1", radius: 3cm), once("grow")))
-    #s.push((clear("c1"), once("normal")))  // Reset to base
-    #s.push((apply("c1"), once("back")))    // Apply will not preserve previous transforms
+    #s.push(apply("c1"))
+    #s.push(apply("c1", fill: red))
+    #s.push(apply("c1", radius: 3cm))
+    #s.push(clear("c1"))  // Reset to base
+    #s.push(apply("c1"))  // Apply will not preserve previous transforms
   ],
   s,
 ))
 
 #slide(s => (
   [
+    = `revert` test
     #let tag = tag.with(s)
     #let c1 = object(circle, hidden: hide)
     #tag("c1", c1())
 
-    #s.push((apply("c1"), once("normal")))
-    #s.push((apply("c1", fill: red), once("red")))
-    #s.push((apply("c1", radius: 3cm), once("grow")))
-    #s.push((revert("c1"), once("normal")))  // Reset to base
-    #s.push((apply("c1"), once("back")))     // Apply will show as if previous animations weren't applied, but history is preserved
+    #s.push(apply("c1"))
+    #s.push(apply("c1", fill: red))
+    #s.push(apply("c1", radius: 3cm))
+    #s.push(revert("c1"))  // Reset to base
+    #s.push(apply("c1"))  // Apply will show as if previous animations weren't applied, but history is preserved
   ],
   s,
 ))
@@ -132,10 +136,10 @@
   s
 ))
 
-#slide(s => (
-  [
-    #let tag = tag.with(s)
-    #tag("Hello", hidden: "base")[HELLO]
-  ],
-  s
-))
+#slide(s => ([
+  #tag(s, "a")[A]
+  #tag(s, "b")[B]
+  #s.push((once("a"), cover("b")))
+  #s.push(once("a"))
+], s))
+
