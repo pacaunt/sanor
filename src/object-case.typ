@@ -7,7 +7,6 @@
   wrappers: wrappers,
 )
 
-
 #let Object(func, cases: (:)) = class(
   "object",
   func: func,
@@ -20,14 +19,12 @@
 /// Stylers are named arguments that modify properties, wrappers are functions
 /// that transform the content.
 ///
-/// - ..modifiers (any): Named stylers and positional wrapper functions.
 /// -> case
-///
-/// #example ```typst
-/// #let red-text = case(fill: red)
-/// #let bold-text = case(text.with(weight: "bold"))
-/// ```
-#let case(..modifiers) = {
+#let case(
+  /// Named stylers and positional wrapper functions.
+  /// -> any
+  ..modifiers
+) = {
   let stylers = modifiers.named()
   let wrappers = modifiers.pos()
 
@@ -79,21 +76,18 @@
 /// states defined by cases. The object can be called with different case names
 /// to apply various modifications.
 ///
-/// - func (function): The base function to create the object.
-/// - hidden (case): The case to use when the object is hidden.
-/// - ..defined-cases (cases): Named cases defining different states.
-/// -> function
-///
-/// #example ```typst
-/// #let colored-box = object(
-///   rect,
-///   normal: case(fill: blue),
-///   highlighted: case(fill: yellow)
-/// )
-/// #colored-box(width: 2cm, height: 1cm)("normal")  // blue box
-/// #colored-box(width: 2cm, height: 1cm)("highlighted")  // yellow box
-/// ```
-#let object(func, hidden: case(hide), ..defined-cases) = {
+/// -> object
+#let object(
+  /// The base function to create the object.
+  /// -> function
+  func,
+  /// The case to use when the object is hidden.
+  /// -> case | function 
+  hidden: case(hide), 
+  /// Named cases defining different states.
+  /// -> arguments
+  ..defined-cases
+) = {
   assert(defined-cases.pos() == (), message: "Unexpected positional arguments")
 
   defined-cases = defined-cases.named()
@@ -103,11 +97,11 @@
   (..args) => Object(func.with(..args), cases: defined-cases)
 }
 
-/// There are 3 sources of cases:
-/// 1. The object: defined cases,
-/// 2. The `tag`: defined cases,
-/// 3. The canvas stage: may not be defined cases.
-/// The `object` itself will combine all of the cases into one.
+// There are 3 sources of cases:
+// 1. The object: defined cases,
+// 2. The `tag`: defined cases,
+// 3. The canvas stage: may not be defined cases.
+// The `object` itself will combine all of the cases into one.
 #let provide-object(obj, hidden: case(hide), ..defined-cases) = {
   if class-of(obj) == "object" {
     // add the other predefined-cases into the object

@@ -10,12 +10,21 @@
 /// constructor adapts automatically so components can be used both inside
 /// `slide` blocks and in helper contexts that already have a bound `tag`.
 ///
-/// - name (str): Default name for the component
-/// - func (function): Function to create the component
-/// - hidden (case | function): Modifier to apply on the component in hidden case
-/// - defined-cases (arguments): Keyword arguments of cases with their name as the key.
-/// -> function
-#let new(name, func, hidden: case(hide), ..defined-cases) = (
+/// -> object
+#let new(
+  /// Default name for the component
+  /// -> str
+  name,
+  /// Function to create the component
+  /// -> function
+  func,
+  /// Modifier to apply on the component in hidden case
+  /// -> case | function
+  hidden: case(hide),
+  /// Keyword arguments of cases with their name as the key.
+  /// -> arguments
+  ..defined-cases,
+) = (
   tag-s,
   name: name,
   defined-cases: defined-cases,

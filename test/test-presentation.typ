@@ -3,6 +3,7 @@
 #set page(paper: "presentation-16-9", fill: luma(20))
 #set text(fill: white, size: 25pt)
 
+// #let (slide,) = set-option(handout: true, handout-index: auto)
 
 #slide(s => (
   [
@@ -13,7 +14,6 @@
     #s.push(apply("Hello", place.with(center + horizon)))
     #s.push(once("Hello", text.with(fill: red)))
     #s.push(apply("Hello"))
-
   ],
   s,
 ))
@@ -50,6 +50,8 @@
     #s.push(apply("c1", radius: 3cm))
     #s.push(clear("c1"))  // Reset to base
     #s.push(apply("c1"))  // Apply will not preserve previous transforms
+    #s.push(cover("c1"))
+    #s.push(clear("c1"))
   ],
   s,
 ))
@@ -76,15 +78,18 @@
     "success": case(text.with(fill: green, weight: "bold")),
     "highlight": case(block.with(fill: yellow.transparentize(80%))),
   ),
-  s => ([
-    #let tag = tag.with(s)
-    
-    #tag("msg1")[Operation completed]
-    #tag("msg2")[Check the results]
-    
-    #s.push(apply("msg1", "success"))
-    #s.push(apply("msg2", "highlight"))
-  ], s),
+  s => (
+    [
+      #let tag = tag.with(s)
+
+      #tag("msg1")[Operation completed]
+      #tag("msg2")[Check the results]
+
+      #s.push(apply("msg1", "success"))
+      #s.push(apply("msg2", "highlight"))
+    ],
+    s,
+  ),
 )
 
 #slide(s => (
@@ -106,13 +111,13 @@
     #s.push("rect")
     #s.push("trig")
   ],
-  s
+  s,
 ))
 
 #slide(s => (
   [
     #let tag = tag.with(s)
-    = Test Last Once and Apply 
+    = Test Last Once and Apply
 
     #let myrect = object(rect.with(stroke: white))
     #tag("m", myrect[Some Rectangle])
@@ -121,7 +126,7 @@
     #s.push(once("m", fill: red))
     #s.push(())
   ],
-  s
+  s,
 ))
 
 #slide(s => (
@@ -133,13 +138,16 @@
     #s.push(apply("t1", text.with(fill: red)))
     #s.push(cover("t1"))
   ],
-  s
+  s,
 ))
 
-#slide(s => ([
-  #tag(s, "a")[A]
-  #tag(s, "b")[B]
-  #s.push((once("a"), cover("b")))
-  #s.push(once("a"))
-], s))
+#slide(s => (
+  [
+    #tag(s, "a")[A]
+    #tag(s, "b")[B]
+    #s.push((once("a"), cover("b")))
+    #s.push(once("a"))
+  ],
+  s,
+))
 

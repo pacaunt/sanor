@@ -3,23 +3,12 @@
 #import "rules.typ": Applier, apply
 #import "class.typ": class, class-of
 
-// Helper function for first step counter
-#let shift-increment(actions) = {
-  if actions == () { return 1 }
-  if class-of(actions.at(0)) != int { 0 } else { 1 }
-}
 /// Indices
 /// `#s.push(1)` -> go to the next slide
 /// `#s.push(-1)` -> go back one slide
 /// `#s.push(apply("name"))` -> apply the rule `apply("name")` here
 #let get-total-steps(actions) = {
-  // Normally, every action increments the total steps by 1,
-  // and the minimal number of subslide is 1.
-  // However, the first rule does not increate the total steps.
-  let start = shift-increment(actions)
-  let increments = actions.map(a => if class-of(a) == int { a } else { 1 }).sum(default: 0)
-
-  return increments
+  actions.map(a => if class-of(a) == int { a } else { 1 }).sum(default: 0)
 }
 
 /// A step consists of multiple rules, and each rules contains a definition.
@@ -43,8 +32,6 @@
 #let _allocate-appliers(ctx, actions) = {
   ctx.total-steps = get-total-steps(actions)
   ctx.default-cases = ((),) * ctx.total-steps
-  // shift the action for the first rule vs integer.
-  // ctx.step += shift-increment(actions)
 
   for action in actions {
     if type(action) == int {
@@ -80,10 +67,12 @@
   }
 
   for applier in step {
+    // copy the last status
+    status.prev-active = status.active
+
     if applier.active != auto {
       status.active = applier.active
     }
-
     // 'track' and 'history' must be equivalent when the element is visible.
     // But, track can have invisible modifiers, which will be eliminated
     // once the element becomes visible.
@@ -114,12 +103,20 @@
       status.history = ()
       status.track = ()
     }
-
-    if applier.kind == "revert" and not status.active {
+    // When the rule is active/inactive, it has their own appliers.
+    // When the rule is auto active, if it inherits, 
+    // it can hide/show based on the history.
+    // When the rule is auto active and it does not inherit, 
+    // it must ne hidden or show based on status. By default, 
+    // it is "base", so we have to force "hidden" when 
+    // status.active is false. 
+    if applier.active == auto and not applier.inherit and not status.active {
       status.appliers += (status.current-hidden,)
     }
-
-    status.is-last-once = applier.kind == "once"
+    // restore the previous status for 'once'
+    if applier.kind == "once" {
+      status.active = status.prev-active
+    }
   }
 
   return (status, status.appliers)
@@ -138,14 +135,13 @@
     base-display: base-display,
     base-hidden: base-hidden,
     current-hidden: base-hidden,
-    is-last-once: false,
+    prev-active: ctx.is-shown, // for restoring 'once' visbility
   )
 
   let result = ()
 
   for step in steps {
     (status, step) = _process-a-step(status, step)
-    if status.is-last-once { status.active = false }
 
     result.push(step.map(a => a.cases).sum())
   }

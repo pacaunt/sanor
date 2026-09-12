@@ -8,9 +8,12 @@
 /// content's function and fields so that non-raw math elements can also be
 /// targeted.
 ///
-/// - element: The thing to turn into a selector.
 /// -> selector
-#let select(element) = {
+#let select(
+  /// The thing to turn into a selector.
+  /// -> content
+  element
+) = {
   if type(element) in (str, selector, function, regex, symbol, label) {
     return selector(element)
   }

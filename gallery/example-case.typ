@@ -1,4 +1,4 @@
-#import "@preview/sanor:0.3.0": *
+#import "@local/sanor:0.3.0": *
 
 // Set up presentation format.
 #set page(paper: "presentation-16-9", fill: luma(20))
@@ -13,12 +13,15 @@
     [
       #let tag = tag.with(s)
       = Mixing animations and pause
-
+      // Go to the next subslide.
+      #s.push(1)
+      // Put the first pause
       #pause(s, [Hello, there!])
-      #s.push(1)
-
+      #s.push(1) // then go to the next slide.
+                 
+      // This will be shown with the next animations.
       #pause(s, [Here are some switches you can choose.])
-      #s.push(1)
+      #s.push(1) // then go to the next subslide.
 
       #set align(center + horizon)
 

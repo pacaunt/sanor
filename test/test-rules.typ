@@ -49,7 +49,7 @@ RESULT
 // #{ ctx.debug = true }
 #_process(ctx, a)
 
-== Process 3 
+== Process 3
 
 #let actions = ()
 
@@ -64,7 +64,7 @@ RESULT
 
 #_allocate-appliers(ctx, actions)
 
-=== Process 
+=== Process
 #_process(ctx, actions)
 
 == Process 4
@@ -77,6 +77,7 @@ RESULT
 #a.push(cover("A", fill: gray))
 #a.push(())
 #a.push(revert("A"))
+#a.push(apply("A"))
 
 // #_allocate-appliers(ctx, a)
 
@@ -84,3 +85,24 @@ RESULT
 
 // #{ ctx.debug = true }
 #_process(ctx, a)
+
+== Process 5
+
+#let a = ()
+#a.push(cover("name"))                        // on subslide 1
+#a.push(apply("name")) // display it          // on subslide 2
+#a.push(apply("name", text.with(fill: red)))  // on subslide 3
+#a.push(once("name", emph))
+#a.push(())
+#a.push(revert("name"))
+// #_allocate-appliers(ctx, a)
+
+RESULT
+#[
+  // #let ctx = _allocate-appliers(ctx, actions)
+  // #{
+  // ctx.cases = utils.map-dict-values(ctx.cases, steps => _process-steps(ctx, steps))
+  // }
+  // #{ ctx.debug = true }
+  #_process(ctx, a)
+]

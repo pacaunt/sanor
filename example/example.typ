@@ -350,11 +350,11 @@
       #let tag = tag.with(s)
       = Mixing animations and pause
 
+      #s.push(1)
       #pause(s, [Hello, there!])
-      #s.push(1)
 
-      #pause(s, [Here are some switches you can choose.])
       #s.push(1)
+      #pause(s, [Here are some switches you can choose.])
 
       #set align(center + horizon)
 

@@ -12,6 +12,7 @@ for file in *.typ; do
 
 
     typst c "$file" --format=png --root .. "$filename{0p}.png"
+    typst c "$file" --root ..
 
     sed -i "s|#import \"../src/lib.typ\": \*|#import \"@preview/sanor:$version\": \*|g" "$file"
 
