@@ -1,6 +1,7 @@
 # Sanor 
 
-Precise animated presentation framework in Typst.
+Precise animated presentation framework in Typst. 
+Check the [manual](./docs/sanor-manual.pdf) for details.
 
 ## Examples
 Click on the image to jump to the source code.
@@ -108,7 +109,7 @@ Add the package to your Typst project:
 ], s))
 ```
 
-## Examples
+## Basic Examples
 
 ### Basic Pause Example
 
