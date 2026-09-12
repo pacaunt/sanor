@@ -3,6 +3,7 @@
 #set page(paper: "presentation-16-9", fill: luma(20))
 #set text(fill: white, size: 25pt)
 
+// #let (slide,) = set-option(handout: true, handout-index: auto)
 
 #slide(s => (
   [
@@ -12,7 +13,7 @@
     #tag("Hello")[This is a text.]
     #s.push(apply("Hello", place.with(center + horizon)))
     #s.push(once("Hello", text.with(fill: red)))
-
+    #s.push(apply("Hello"))
   ],
   s,
 ))
@@ -24,6 +25,7 @@
     #let myrect = object(rect, base: case(), yellow: case(fill: yellow))
 
     This is the first text. #tag("yrect", myrect[Hi])
+    #s.push(1)
 
     #pause(s)[Then this came later]
     #s.push(1)
@@ -38,30 +40,34 @@
 
 #slide(s => (
   [
+    == `clear` demonstration
     #let tag = tag.with(s)
     #let c1 = object(circle, hidden: hide)
     #tag("c1", c1())
 
-    #s.push((apply("c1"), once("normal")))
-    #s.push((apply("c1", fill: red), once("red")))
-    #s.push((apply("c1", radius: 3cm), once("grow")))
-    #s.push((clear("c1"), once("normal")))  // Reset to base
-    #s.push((apply("c1"), once("back")))    // Apply will not preserve previous transforms
+    #s.push(apply("c1"))
+    #s.push(apply("c1", fill: red))
+    #s.push(apply("c1", radius: 3cm))
+    #s.push(clear("c1"))  // Reset to base
+    #s.push(apply("c1"))  // Apply will not preserve previous transforms
+    #s.push(cover("c1"))
+    #s.push(clear("c1"))
   ],
   s,
 ))
 
 #slide(s => (
   [
+    = `revert` test
     #let tag = tag.with(s)
     #let c1 = object(circle, hidden: hide)
     #tag("c1", c1())
 
-    #s.push((apply("c1"), once("normal")))
-    #s.push((apply("c1", fill: red), once("red")))
-    #s.push((apply("c1", radius: 3cm), once("grow")))
-    #s.push((revert("c1"), once("normal")))  // Reset to base
-    #s.push((apply("c1"), once("back")))     // Apply will show as if previous animations weren't applied, but history is preserved
+    #s.push(apply("c1"))
+    #s.push(apply("c1", fill: red))
+    #s.push(apply("c1", radius: 3cm))
+    #s.push(revert("c1"))  // Reset to base
+    #s.push(apply("c1"))  // Apply will show as if previous animations weren't applied, but history is preserved
   ],
   s,
 ))
@@ -72,15 +78,18 @@
     "success": case(text.with(fill: green, weight: "bold")),
     "highlight": case(block.with(fill: yellow.transparentize(80%))),
   ),
-  s => ([
-    #let tag = tag.with(s)
-    
-    #tag("msg1")[Operation completed]
-    #tag("msg2")[Check the results]
-    
-    #s.push(apply("msg1", "success"))
-    #s.push(apply("msg2", "highlight"))
-  ], s),
+  s => (
+    [
+      #let tag = tag.with(s)
+
+      #tag("msg1")[Operation completed]
+      #tag("msg2")[Check the results]
+
+      #s.push(apply("msg1", "success"))
+      #s.push(apply("msg2", "highlight"))
+    ],
+    s,
+  ),
 )
 
 #slide(s => (
@@ -102,13 +111,13 @@
     #s.push("rect")
     #s.push("trig")
   ],
-  s
+  s,
 ))
 
 #slide(s => (
   [
     #let tag = tag.with(s)
-    = Test Last Once and Apply 
+    = Test Last Once and Apply
 
     #let myrect = object(rect.with(stroke: white))
     #tag("m", myrect[Some Rectangle])
@@ -117,5 +126,28 @@
     #s.push(once("m", fill: red))
     #s.push(())
   ],
-  s
+  s,
 ))
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Test Cover
+    #tag("t1")[This is a text]
+    #s.push("t1")
+    #s.push(apply("t1", text.with(fill: red)))
+    #s.push(cover("t1"))
+  ],
+  s,
+))
+
+#slide(s => (
+  [
+    #tag(s, "a")[A]
+    #tag(s, "b")[B]
+    #s.push((once("a"), cover("b")))
+    #s.push(once("a"))
+  ],
+  s,
+))
+

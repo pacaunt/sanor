@@ -59,16 +59,15 @@
 #set page(paper: "presentation-16-9")
 #set text(size: 25pt)
 
-#let item-tag = _tag.with(hider: it => {
+#let item-hider(it) = {
   show enum: hide
   show list: hide
   it
-})
+}
 
-#slide(
-  s => [
-    #let tag = _tag.with(s)
-    #let item-tag = _tag.with(s)
+#scene(
+  tag => [
+    #let item-tag = tag.with(item-hider)
 
     = Hello
     #tag("1")[Some Text]
@@ -93,9 +92,8 @@
   ),
 )
 
-#slide(
-  s => [
-    #let tag = _tag.with(s)
+#scene(
+  tag => [
     = Some Key
 
     #tag("author")[The author of this package is `@pacaunt`] \

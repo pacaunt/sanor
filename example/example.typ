@@ -6,7 +6,7 @@
 
 // To create a handout, uncomment the following line.
 // The `handout-index` is the index of the frame that will be shown in the handout.
-// 
+//
 // #let (slide,) = set-option(handout: true, handout-index: auto)
 
 #slide(s => (
@@ -50,6 +50,25 @@
     #s.push(apply("apply"))
     #s.push(apply("trans"))
     #s.push(apply("trans", text(fill: yellow, "Transformed!")))
+  ],
+  s,
+))
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
+    = Nested `tag` for styling
+    #set align(center + horizon)
+    #s.push(1)
+    // element in nested tag calls will not hide
+    // good for highlighting
+    #tag("paragraph", tag => [
+      #lorem(10)#tag("h1", lorem(10))
+      #lorem(5)#lorem(10)#tag("h2", lorem(5))
+    ])
+    #s.push("paragraph")
+    #s.push(once("h1", highlight))
+    #s.push(once("h2", highlight.with(fill: teal.transparentize(70%))))
   ],
   s,
 ))
@@ -113,6 +132,36 @@
 #slide(s => (
   [
     #let tag = tag.with(s)
+    = Magic Selectors
+    `select` can be used to construct a precise selector for styling.
+    #s.push(1) // go to the next slide.
+    #tag(
+      "eq",
+      $
+        F = (G m_1 m_2)/r^2
+      $,
+    )
+    #s.push(apply(
+      "eq",
+      scale.with(200%, reflow: true),
+      align.with(center + horizon),
+    ))
+    #s.push(once("eq", it => {
+      // select parts of an equation easily
+      show select($m_1$): set text(fill: teal)
+      show select($m_2$): set text(fill: red)
+      show select($r^2$): set text(fill: yellow)
+      show select($F$): set text(fill: orange)
+      it
+    }))
+
+  ],
+  s,
+))
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
     = Simultaneous Animation
     #set align(center + horizon)
 
@@ -164,22 +213,57 @@
 #slide(s => (
   [
     #let tag = tag.with(s)
+    = Predefined Objects: Components
+    For markup, `#import mcomps: *`,\  for CeTZ elements, `#import ccomps: *`.
+    #s.push(1)
+
+    #set align(center + horizon)
+    // import the predefined CeTZ objects
+    #import ccomps: *
+    #cetz.canvas({
+      import cetz.draw: *
+      stroke(white)
+      // Name of a component can be called directly.
+      ccircle(tag, (0, 0), name: "c1")
+      s.push("c1")
+      crect(tag, "c1.east", (rel: (2, 2)), name: "r1")
+      s.push("r1")
+      cpolygon(
+        tag,
+        "r1.south-east",
+        3,
+        anchor: "west",
+        angle: 90deg,
+        name: "poly1",
+      )
+      s.push("poly1")
+      s.push(apply("c1", fill: red, stroke: none))
+      s.push(apply("r1", fill: blue, stroke: none))
+      s.push(apply("poly1", fill: olive, stroke: none))
+    })
+  ],
+  s,
+))
+
+#slide(s => (
+  [
+    #let tag = tag.with(s)
     = Revert Animation
     Example with CeTZ integration. \
-  
+
     #let tag = tag.with(hidden: it => none)
     #set align(center)
     #tag("normal", "A Normal Circle")
-    #tag("red","Fill it red.")
+    #tag("red", "Fill it red.")
     #tag("grow", "Make it big.")
     #tag("back", "It is back!")
     #set align(horizon)
 
     #import "@preview/cetz:0.5.0"
     #cetz.canvas({
-      import cetz.draw: * 
+      import cetz.draw: *
       set-style(stroke: white)
-      // change the hiding method used by the `tag` function. 
+      // change the hiding method used by the `tag` function.
       let tag = tag.with(hidden: hide.with(bounds: true))
 
       let c1 = object(circle, hidden: hide)
@@ -194,7 +278,7 @@
       s.push((apply("c1"), once("back")))
     })
   ],
-  s
+  s,
 ))
 
 #slide(s => (
@@ -202,20 +286,20 @@
     #let tag = tag.with(s)
     = Clear animation of an object
     Example with CeTZ integration. \
-  
+
     #let tag = tag.with(hidden: it => none)
     #set align(center)
     #tag("normal", "A Normal Circle")
-    #tag("red","Fill it red.")
+    #tag("red", "Fill it red.")
     #tag("grow", "Make it big.")
     #tag("back", "It did not come back...")
     #set align(horizon)
 
     #import "@preview/cetz:0.5.0"
     #cetz.canvas({
-      import cetz.draw: * 
+      import cetz.draw: *
       set-style(stroke: white)
-      // change the hiding method used by the `tag` function. 
+      // change the hiding method used by the `tag` function.
       let tag = tag.with(hidden: hide.with(bounds: true))
 
       let c1 = object(circle, hidden: hide)
@@ -230,14 +314,14 @@
       s.push((apply("c1"), once("back")))
     })
   ],
-  s
+  s,
 ))
 
 #slide(s => (
   [
     #let tag = tag.with(s)
     = Custom Defined Cases
-    *Cases* are a short hand for defining actions that will act on an element.
+    *Cases* are a shorthand for defining actions that will act on an element.
 
     #let mytext = object(
       text,
@@ -266,11 +350,11 @@
       #let tag = tag.with(s)
       = Mixing animations and pause
 
+      #s.push(1)
       #pause(s, [Hello, there!])
-      #s.push(1)
 
-      #pause(s, [Here are some switches you can choose.])
       #s.push(1)
+      #pause(s, [Here are some switches you can choose.])
 
       #set align(center + horizon)
 
@@ -308,8 +392,8 @@
   [
     #let tag = tag.with(s)
     #set align(center + horizon)
-    = Thanks 
+    = Thanks
     \@pacaunt
   ],
-  s
+  s,
 ))

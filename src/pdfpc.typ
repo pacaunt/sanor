@@ -1,7 +1,17 @@
 /// imported from https://github.com/polylux-typ/polylux/blob/main/src/toolbox/pdfpc.typ 
 /// Same as Polylux package 
 
-#let speaker-note(text) = {
+/// Adds speaker notes to a slide, visible only in the presenter view. 
+/// 
+/// ```typst
+/// #pdfpc.speaker-note[Remember to emphasize this point during the presentation]
+/// ```
+/// -> metadata
+#let speaker-note(
+  /// Speaker notes as a string or raw code block
+  /// -> str | raw
+  text
+) = {
   let text = if type(text) == str {
     text
   } else if type(text) == content and text.func() == raw {
@@ -12,25 +22,54 @@
   [ #metadata((t: "Note", v: text)) <pdfpc> ]
 }
 
+/// Mark the end of a slide
+/// -> metadata
 #let end-slide = [
   #metadata((t: "EndSlide")) <pdfpc>
 ]
 
+/// Save the current slide state
+/// -> metadata
 #let save-slide = [
   #metadata((t: "SaveSlide")) <pdfpc>
 ]
 
+/// Mark a slide as hidden from the presentation
+/// -> metadata
 #let hidden-slide = [
   #metadata((t: "HiddenSlide")) <pdfpc>
 ]
 
+/// Configure presentation settings for pdfpc.
+/// 
+/// ```typst
+/// #pdfpc.config(
+///   duration-minutes: 30,
+///   start-time: "14:00",
+///   last-minutes: 5,
+/// )
+/// ```
 #let config(
+  /// Total presentation duration in minutes
+  /// -> int
   duration-minutes: none,
+  /// Presentation start time in HH:MM format
+  /// -> str | datetime
   start-time: none,
+  /// Presentation end time in HH:MM format
+  /// -> str | datetime
   end-time: none,
+  /// Highlight final N minutes with visual alert
+  /// -> int
   last-minutes: none,
+  /// Font size of the speaker note
+  /// -> int
   note-font-size: none,
+  /// Whether or not to disable rendering the notes as markdown
+  /// -> bool
   disable-markdown: false,
+  /// Default slide transition settings
+  /// -> dictionary
   default-transition: none,
 ) = {
   if duration-minutes != none {
@@ -38,9 +77,9 @@
   }
 
   let _time-config(time, msg-name, tag-name) = {
-    let time = if type(time) == "datetime" {
+    let time = if type(time) == datetime {
       time.display("[hour padding:zero repr:24]:[minute padding:zero]")
-    } else if type(time) == "string" {
+    } else if type(time) == str {
       time
     } else {
       panic(msg-name + " must be either a datetime or a string in the HH:MM format.")

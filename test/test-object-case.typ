@@ -16,6 +16,6 @@
 // unnamed modifier
 #text-1([A])(case(weight: "bold", box.with(stroke: red), align.with(right))))
 
-#let A = make-object([Hello], redden: case(text.with(fill: red)))
+#let A = provide-object([Hello], redden: case(text.with(fill: red)))
 #A("base") \
 #A("redden") 
