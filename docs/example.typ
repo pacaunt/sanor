@@ -1,4 +1,4 @@
-#import "../src/lib.typ": *
+#import "@local/sanor:0.3.0": *
 
 // Set up presentation format.
 #set page(paper: "presentation-16-9", fill: luma(20))
@@ -24,6 +24,7 @@
     #let tag = tag.with(s)
     = Normal Pause
     #set align(horizon)
+    #s.push(1)
     #pause(s, [- First Item])
     #s.push(1)
 
@@ -59,7 +60,6 @@
     #let tag = tag.with(s)
     = Nested `tag` for styling
     #set align(center + horizon)
-    #s.push(1)
     // element in nested tag calls will not hide
     // good for highlighting
     #tag("paragraph", tag => [
@@ -349,12 +349,13 @@
     [
       #let tag = tag.with(s)
       = Mixing animations and pause
-
       #s.push(1)
+
       #pause(s, [Hello, there!])
-
       #s.push(1)
+
       #pause(s, [Here are some switches you can choose.])
+      #s.push(1)
 
       #set align(center + horizon)
 

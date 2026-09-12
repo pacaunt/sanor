@@ -1,4 +1,4 @@
-#import "../../src/lib.typ": *
+#import "@local/sanor:0.3.0": *
 
 #set page(paper: "presentation-16-9")
 #set text(size: 30pt)
