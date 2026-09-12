@@ -206,8 +206,8 @@ For example, #code(`apply("name", text.with(fill: red))`) makes the text in the 
 #s.push(apply("name", strong))               // shows red and bold [Element]
 ```
 The full example of this slide would be
-#source-example("assets/example1.typ")
-#render-pdf("assets/example1.pdf", pages: 3)
+#source-example("../assets/example1.typ")
+#render-pdf("../assets/example1.pdf", pages: 3)
 
 == Rule Specification
 === A Quick Tutorial
@@ -264,8 +264,8 @@ However, let's add a _blank_ animation, i.e., a subslide that we do not specify 
 
 The full example of this usage is shown here
 
-#source-example("assets/example-rules.typ")
-#render-pdf("assets/example-rules.pdf", pages: 6)
+#source-example("../assets/example-rules.typ")
+#render-pdf("../assets/example-rules.pdf", pages: 6)
 
 === Properties of A Rule
 
@@ -302,13 +302,13 @@ However, some rules have their own special effects:
 - #code(`once()`) can make the element visible only once (and hidden thereafter), if it is the last active rule of that element.
 The difference of using #code(`revert("name")`) and #code(`clear("name")`) are shown in the following examples:
 
-#source-example("assets/example-revert.typ")
-#render-pdf("assets/example-revert.pdf", pages: 5)
+#source-example("../assets/example-revert.typ")
+#render-pdf("../assets/example-revert.pdf", pages: 5)
 
 So, #code(`revert("name")`) *does not clear* the modification history, as on the subslide 5 the modified element came back just like the one before the `revert` call. Let's compare this to the `clear` rule:
 
-#source-example("assets/example-clear.typ")
-#render-pdf("assets/example-clear.pdf", pages: 5)
+#source-example("../assets/example-clear.typ")
+#render-pdf("../assets/example-clear.pdf", pages: 5)
 
 The element after #code(`clear("name")`) stays like the base form. It does not change back to the modified one displayed in the subslide 3, as `clear` does clear the modification history of the element.
 
@@ -321,12 +321,12 @@ by showing the common parts $(x + 1)$ as
 - eliminate text in the subslide 4
 Since the $(x + 1)$ will undergo the same process, we can tag them with the same name and specify the rules with that name, like this
 
-#source-example("assets/example-simp-math.typ")
-#render-pdf("assets/example-simp-math.pdf", pages: 4)
+#source-example("../assets/example-simp-math.typ")
+#render-pdf("../assets/example-simp-math.pdf", pages: 4)
 
 === Specifying Multiple Rules
 On a slide, you may have many elements that should be transformed together in some steps. Multiple rules in the same step can be specified by using _an array of rules_ instead. Let's say we want to make the following animation
-#render-pdf("assets/example-two-rects.pdf", pages: 2)
+#render-pdf("../assets/example-two-rects.pdf", pages: 2)
 First, initialize the slide and create the rectangle by
 ```
 #slide(s => ([
@@ -353,7 +353,7 @@ Similarly, the red and blue rectangles are also shown by replacing the old ones 
 Therefore, multiple rules can be executed in the same step by *combining them in an array* before pushing it to the sequence `#s`.
 
 The full code of this example is shown here:
-#source-example("assets/example-two-rects.typ")
+#source-example("../assets/example-two-rects.typ")
 Later in this documentation, the method that can actually modify the properties of tagged elements will be introduced, so that the color of the rectangles can be changed without creating new ones.
 
 == Timeline and Pause
@@ -367,8 +367,8 @@ Apart from pushing `()` to create an empty rule that forces one subslide, you ca
 ```
 will cause the element #code(`"A"`) to be visible on subslide 1, and element #code(`"B"`) to be visible on subslide 4 (2, and 3 are _skipped_ by the #code(`s.push(2)`)). This is useful for creating step-by-step reveal with `#pause()` function, like this
 
-#source-example("assets/example-pause.typ")
-#render-pdf("assets/example-pause.pdf", pages: 3)
+#source-example("../assets/example-pause.typ")
+#render-pdf("../assets/example-pause.pdf", pages: 3)
 
 The showing sequence of contents that are tagged and paused will follows the sequence in `#s`. The integer skips the subslide and push the animation to the next subslide. Moreover, the _negative_ integer also can be specified, to move the next rule/pause execute earlier than the current subslide, e.g.
 ```
@@ -379,8 +379,8 @@ The showing sequence of contents that are tagged and paused will follows the seq
 #s.push(1)          // should create subslide 3, but got shifted to 2.
 ```
 For a full example of this usage:
-#source-example("assets/example-negative.typ")
-#render-pdf("assets/example-negative.pdf", pages: 2)
+#source-example("../assets/example-negative.typ")
+#render-pdf("../assets/example-negative.pdf", pages: 2)
 
 == Objects and Cases
 === Animate with Objects
@@ -416,7 +416,7 @@ and use it as
 ```
 Note that the created object is used as if it is a normal element. You can add the styling arguments or positional argument as usual.
 From the snippet, the following result is obtained.
-#render-pdf("assets/example-objects.pdf", pages: 2)
+#render-pdf("../assets/example-objects.pdf", pages: 2)
 
 === Advanced Modification: `#case()` function
 The created object can also be modified by wrapping it with functions. To combine the keyword properties like #code(`stroke: red, fill: green`) and functions like #code(`rotate()`), #code(`align()`), the `#case()` function is used as
@@ -434,8 +434,8 @@ Then, the created case can be used in rules like
 ```
 === Predefined Cases
 Some modification that are used very often can be named within the object/tag so that it can be applied by calling the case's name. Let's see this usage from the following example.
-#zebraw(source-example("assets/example-named-case.typ"), line-range: (5, 18))
-#render-pdf("assets/example-named-case.pdf", pages: 3)
+#zebraw(source-example("../assets/example-named-case.typ"), line-range: (5, 18))
+#render-pdf("../assets/example-named-case.pdf", pages: 3)
 There are some important cases that are predefined by default for all tagged elements:
 + #code(`"hidden"`) case: the modification when the element is hidden. It is some kind of `hide` function by default, but you can change it by redefining this in object initialization.
 + #code(`"base"`) case: no modification. This is the case that will be used whenever the object is display but no modification is specified.
@@ -458,8 +458,8 @@ Note that all component will have `name` keyword argument for naming the object 
 You can import the 'mcomps' module containing predefined markup components for drawing basic stuff like rectangle, circle, block, etc. These defined components have the same name as the standard Typst's but are prefixed with `m`, like `mrect` for `rect`, `mcircle` for circle, `mline` for `line`.
 
 This package also contains predefined components from CeTZ package. All element drawing functions in the 'draw' module of CeTZ are available with prefix of `c` like `ccontent`, `ccircle`, `cline`, `crect`. The CeTZ elements are hidden by CeTZ's `hide` function by default, and *you can use the element's name* to refer in the rule specification too.
-#zebraw(source-example("assets/example-ccomps.typ"), line-range: (2, -1))
-#render-pdf("assets/example-ccomps.pdf", pages: 4, n-cols: 2)
+#zebraw(source-example("../assets/example-ccomps.typ"), line-range: (2, -1))
+#render-pdf("../assets/example-ccomps.pdf", pages: 4, n-cols: 2)
 // Don't forget to tell about the ccomps and mcomps
 
 == Utility
@@ -530,26 +530,26 @@ Here is an example of how to write slide-level predefined cases.
 == Examples 
 === Syncing Animation 
 #source-example("../gallery/example-sync.typ")
-#render-pdf("../gallery/example-sync.pdf", pages: 3, n-cols: 2)
+#render-pdf("../assets/example-sync.pdf", pages: 3, n-cols: 2)
 
 === Math Animation 
 #source-example("../gallery/example-math.typ")
-#render-pdf("../gallery/example-math.pdf", pages: 4, n-cols: 2)
+#render-pdf("../assets/example-math.pdf", pages: 4, n-cols: 2)
 
 === Code Animation 
 Integration with Zebraw package.
 #source-example("../gallery/example-code.typ")
-#render-pdf("../gallery/example-code.pdf", pages: 2, n-cols: 2)
+#render-pdf("../assets/example-code.pdf", pages: 2, n-cols: 2)
 
 === Multiple Objects & Cases
 Using rules and pauses together
 #source-example("../gallery/example-case.typ")
-#render-pdf("../gallery/example-case.pdf", pages: 7, n-cols: 2)
+#render-pdf("../assets/example-case.pdf", pages: 7, n-cols: 2)
 
 === Magic Selector Example 
 Integration with chemformula.
 #source-example("../gallery/example-chem.typ")
-#render-pdf("../gallery/example-chem.pdf", pages: 5, n-cols: 2)
+#render-pdf("../assets/example-chem.pdf", pages: 5, n-cols: 2)
 
 = References
 #set heading(numbering: none)

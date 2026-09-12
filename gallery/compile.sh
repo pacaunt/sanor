@@ -18,7 +18,10 @@ for file in *.typ; do
 
     ffmpeg -framerate 1.5 -i $filename%d.png $filename.gif
     rm *.png
+done
 
+for file in *.pdf; do 
+    mv "$file" ../assets/
 done
 
 echo "Done!"
