@@ -115,11 +115,11 @@
   let i = ctx.subslide
 
   {
-    set heading(outlined: i == 1, bookmarked: i == 1)
-    if i > 1 {
+    set heading(outlined: i == 1, bookmarked: i == 1) if not ctx.handout
+    if i > 1 and not ctx.handout {
       counter(page).update(n => n - 1)
     }
-    
+
     body
 
     pdfpc.pdfpc-slide-markers(ctx)
